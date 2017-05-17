@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)http://localhost:8383/fancytree-2.22/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+        <link href="./index_files/ui.fancytree.css" rel="stylesheet">
+        <link rel="stylesheet" href="./index_files/progress-tracker.css">
+        <link rel="stylesheet" href="./index_files/site.css">
+        <link rel="stylesheet" href="./index_files/custom.css">
+        <link href="./index_files/bootstrap.min.css" rel="stylesheet">
+        <script src="./index_files/jquery-3.2.1.min.js.download"></script>
+        <script src="./index_files/jquery-ui.min.js.download"></script>
+        <script src="./index_files/jquery.fancytree.js.download"></script>
+        <script src="./index_files/customjs.js.download"></script>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- (Irrelevant source removed.) -->
+
+        <style type="text/css">
+        </style>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                //$("#content").load("./pages/welcome.html");
+                $.ajax({
+                   method:'GET',
+                   url:'http://127.0.0.1:5000/',
+                   dataType: "json",
+                   contentType: "application/json ; charset=utf-8",
+                   success: function (data) {
+//                        console.log(data.pList[0].desc.lastName);
+
+                    }
+                   
+                });
+
+                $("#curate").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#curateid").addClass("is-active")
+                    $("#content").load("./pages/curate.html");
+                });
+                $("#details").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#detailsid").addClass("is-active")
+                    $("#content").load("./pages/details.html");
+                });
+            });
+          
+          function goNext(){
+              $("#navbar>li.is-active").removeClass("is-active");
+              $("#detailsid").addClass("is-active");
+              $("#welcomeid").addClass("is-complete");
+              $("#content").load("./pages/details.html");
+          }
+
+        </script>
+    </head>
+
+    <body class="example">
+        <div id="navigation" class="navigation">
+            <ul id="navbar" class="progress-tracker progress-tracker--text progress-tracker--center">
+                <li id="welcomeid" class="progress-step is-complete">
+                    <a href="http://localhost:8383/fancytree-2.22/index.html#" id="welcome"><span class="progress-marker">1</span></a>
+                    <span class="progress-text">
+                        Welcome To Data Curator
+                    </span>
+                </li>
+                <li id="detailsid" class="progress-step is-complete">
+                    <a href="http://localhost:8383/fancytree-2.22/index.html#" id="details"><span class="progress-marker">2</span></a>
+                    <span class="progress-text">
+                        Enter Your Details
+                    </span>
+                </li>
+                <li id="serverid" class="progress-step is-active">
+                    <a href="http://localhost:8383/fancytree-2.22/index.html#" id="server"><span class="progress-marker">3</span></a>
+                    <span class="progress-text">
+                        Enter Server Information
+                    </span>
+                </li>
+                <li id="curateid" class="progress-step">
+                    <a href="http://localhost:8383/fancytree-2.22/index.html#" id="curate"><span class="progress-marker">4</span></a>
+                    <span class="progress-text">
+                        Enter Project Metadata To Curate
+                    </span>
+                </li>
+                <li class="progress-step">
+                    <span class="progress-marker">5</span>
+                    <span class="progress-text">
+                        Enter Project Metadata To Curate
+                    </span>
+                </li>
+                <li class="progress-step">
+                    <span class="progress-marker">6</span>
+                    <span class="progress-text">
+                        Define Workflow
+                    </span>
+
+                </li>
+                <li class="progress-step">
+                    <span class="progress-marker">7</span>
+                    <span class="progress-text">
+                        Download Metadata
+                    </span>
+
+                </li>
+                <li class="progress-step">
+                    <span class="progress-marker">8</span>
+                    <span class="progress-text">
+                        Publish Metadata
+                    </span>
+
+                </li>
+                <li class="progress-step">
+                    <span class="progress-marker">9</span>
+                    <span class="progress-text">
+                        Acknowledgement
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div id="content">
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+    
+        <script>
+            /* 
+             * To change this license header, choose License Headers in Project Properties.
+             * To change this template file, choose Tools | Templates
+             * and open the template in the editor.
+             */
+
+
+
+
+
+            $.ajax({
+                method: 'GET',
+                url: 'http://127.0.0.1:5000/getFancyInfo',
+                dataType: "json",
+                contentType: "application/json ; charset=utf-8",
+                success: function (data) {
+                    console.log(data.listObjects);
+                    $("#tree").fancytree({
+                        checkbox: true,
+                        selectMode: 3,
+                        persist: {
+                            expandLazy: false,
+                            overrideSource: false,
+                            store: "cookie", // force using cookies!
+                        },
+                        source: data.listObjects,
+                        lazyLoad: function (event, data) {
+                            var node = data.node;
+                            values[1]['path'] = node.key;
+                            values[4]['mode'] = 'child';
+                            data.result = $.ajax({
+                                url: 'http://127.0.0.1:5000/getFancyInfo',
+                                method: 'POST',
+                                dataType: "json",
+                                contentType: "application/json ; charset=utf-8",
+                                data: JSON.stringify(values),
+                                cache: false,
+                                success: function (resp) {
+                                    console.log(resp.listObjects);
+                                    node.addChildren(resp.listObjects);
+                                    node.fixSelection3AfterClick();
+                                    node.toggleExpanded();
+                                }
+                            });
+                        },
+                        select: function (event, data) {
+                            // Get a list of all selected nodes, and convert to a key array:
+                            var selKeys = $.map(data.tree.getSelectedNodes(), function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelection3").text(selKeys.join(", "));
+
+                            // Get a list of all selected TOP nodes
+                            var selRootNodes = data.tree.getSelectedNodes(true);
+                            // ... and convert to a key array:
+                            var selRootKeys = $.map(selRootNodes, function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelectionRootKeys3").text(selRootKeys.join(", "));
+                            $("#echoSelectionRoots3").text(selRootNodes.join(", "));
+                        },
+                        dblclick: function (event, data) {
+                            data.node.toggleSelected();
+                        },
+                        keydown: function (event, data) {
+                            if (event.which === 32) {
+                                data.node.toggleSelected();
+                                return false;
+                            }
+                        },
+                        // The following options are only required, if we have more than one tree on one page:
+                        //        initId: "SOURCE",
+                        cookieId: "fancytree-Cb3",
+                        idPrefix: "fancytree-Cb3-"
+                    });
+                },
+                failure: function (errMsg) {
+                    alert(JSON.stringify(errMsg.toString()));
+                }
+            });
+            $("#btnToggleSelect").click(function () {
+                $("#tree").fancytree("getRootNode").visit(function (node) {
+                    node.toggleSelected();
+                });
+                return false;
+            });
+            $("#btnDeselectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(false);
+                });
+                return false;
+            });
+            $("#btnSelectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(true);
+                });
+                return false;
+            });
+            $(function () {
+                $('.formelements').css("display", "none");
+                $('#treelist').change(function () {
+                    $('.formelements').css("display", "none");
+                    if ($('#treelist').val() == 'PI') {
+                        $('#PI').css("display", "block");;
+                    }if ($('#treelist').val() == 'Charts') {
+                        $('#Charts').css("display", "block");;
+                    } if ($('#treelist').val() == 'DataSets') {
+                        $('#DataSets').css("display", "block");;
+                    } 
+                });
+            });
+        </script>
+    
+    
+        <div id="tree" style="width: 40%; float: left;">
+        <ul class="ui-fancytree fancytree-container fancytree-plain" tabindex="0"><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">ncomms13062</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">jacs.6b00225</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">acs.chemmater.6b04877</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">c5sm02944a</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">c6sm00810k</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">1.4823769</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">pnas.1421042112</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">1.4928523</span></span></li><li><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lazy fancytree-exp-cd fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">acs.jpcb.6b11816</span></span></li><li class="fancytree-lastsib"><span class="fancytree-node fancytree-folder fancytree-has-children fancytree-lastsib fancytree-lazy fancytree-exp-cdl fancytree-ico-cf"><span class="fancytree-expander"></span><span class="fancytree-checkbox"></span><span class="fancytree-icon"></span><span class="fancytree-title">jacs.6b06372</span></span></li></ul></div>
+        <div style="width: 10%"></div>
+        <div id="menulist" style="width: 50%; float: right;">
+            <div>
+                <form>
+                    <label for="nodeParent" style="
+    width: 100%;
+">Node Parent:
+                        <select id="treelist">
+                            <option value="Default"></option>
+                            <option value="PI">PI</option>
+                            <option value="Charts">Charts</option>
+                            <option value="DataSets">DataSets</option>
+                            <option value="Info">Info</option>
+                            <option value="Reference">Reference</option>
+                            <option value="Scripts">Scripts</option>
+                            <option value="Tools">Tools</option>
+                            <option value="Tags">Tags</option>
+                        </select>
+                   </label>
+                </form>
+            </div>
+            <div id="PI" class="formelements" style="display: none;">
+                <div class="form-style-2-heading">Add New Info</div>
+                <form>
+                    <div class="form-group">
+                        <label for="field1"><span>First Name of PI<span class="required">*</span></span><input type="text" class="form-control" id="pifname" value="" placeholder="Enter First Name of PI" required=""></label>
+                        <label for="field2"><span>Middle Name  of PI</span><input type="text" class="form-control" id="pimname" value="" placeholder="Enter Middle Name of PI"></label>
+                        <label for="field3"><span>Last Name  of PI<span class="required">*</span></span><input type="text" class="form-control" id="pilname" value="" placeholder="Enter Last Name of PI"></label>
+                        <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control" id="collection" value="" placeholder="Enter Collection to which Project belongs"></label>
+                        <label for="field5"><span>Tags<span class="required">*</span></span><input type="text" class="form-control" id="tags" value="" placeholder="Enter Tags for the project"></label>
+                        <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control" id="notebookfile" value="" placeholder="Enter Main Notebook File Name"></label>
+                        <label for="buttons">
+                            <input type="button" class="btn btn-lg btn-primary btn-block" value="Save" onclick="savePI(&#39;POST&#39;);">
+                            <input type="button" class="btn btn-lg btn-primary btn-block" value="Add New Fields" onclick="addFields(&#39;Info&#39;);">
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div id="Charts" class="formelements" style="display: none;">
+                <div class="form-style-2-heading">Add New Charts</div>
+                <form>
+                    <div class="form-group">
+                        <label for="field1"><span>Kind<span class="required">*</span></span><input type="radio" name="ChartsRadio" value="Figure"> Figure <input type="radio" name="ChartsRadio" value="Table"> Table</label>
+                        <label for="field2"><span>Caption<span class="required">*</span></span><input type="text" class="form-control" id="Caption" value="" placeholder="Enter Caption for Chart"></label>
+                        <label for="field3"><span>Number<span class="required">*</span></span><input type="text" class="form-control" id="Number" value="" placeholder="Enter Number for Chart" required=""></label>
+                        <label for="field4"><span>Files<span class="required">*</span></span><input type="text" class="form-control" id="Files" value="" placeholder="Add Files Using Checkbox"></label>
+                        <label for="field5"><span>Image Files<span class="required">*</span></span><input type="text" class="form-control" id="Imagefiles" value="" placeholder="Add Image File Using Checkbox" required=""></label>
+                        <label for="field6"><span>Notebook File<span class="required">*</span></span><input type="text" class="form-control" id="Notebookfile" value="" placeholder="Add Notebook File Using Checkbox"></label>
+                        <label for="field7"><span>Properties<span class="required">*</span></span><input type="text" class="form-control" id="Properties" value="" placeholder="Add Properties of Chart" required=""></label>
+                        <label for="buttons">
+                            <input type="button" class="btn btn-lg btn-primary btn-block" value="Save" onclick="saveCharts(&#39;POST&#39;);">
+                            <input type="button" class="btn btn-lg btn-primary btn-block" value="Add New Fields" onclick="addFields(&#39;Charts&#39;);">
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+
+</div>
+        <div>
+
+        </div>
+        <!-- (Irrelevant source removed.) -->
+    
+</body></html>

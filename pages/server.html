@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script>
+            $(document).ready(function () {
+                saveServerDetails('GET');
+            });
+            function saveServerDetails(type) {
+                var type = type;
+                var servername = $("#servername").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var path = $("#path").val();
+                var plist = [];
+                plist.push(type);
+                if (servername.toString() != "")
+                    plist.push(servername);
+                if (username.toString() != "")
+                    plist.push(username);
+                if (password.toString() != "")
+                    plist.push(password);
+                if (path.toString() != "")
+                    plist.push(path);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/getServerDetails',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(plist),
+                    success: function (data) {
+//                        console.log(data.pList[0].desc.lastName);
+                        console.log(data);
+                        if (type == "POST") {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#serverid").addClass("is-active");
+                            $("#detailsid").addClass("is-complete");
+                            $("#content").load("./pages/curate.html");
+                        } else {
+                                $("#servername").val(data.serverDetails.desc.serverName);
+                                $("#username").val(data.serverDetails.desc.Username);
+                                $("#password").val(data.serverDetails.desc.Password);
+                                $("#path").val(data.serverDetails.desc.Path);
+                        }
+                    }
+                });
+            }
+        </script>
+
+
+
+
+
+
+
+
+
+    </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <body>
+        <div class="form-style-2 centrist">
+            <div class="form-style-2-heading">Provide Server Details</div>
+            <form>
+                <label for="field1"><span>Server Name <span class="required">*</span></span><input type="text" class="form-control"  id="servername" value="" placeholder="Enter Server Name Where Data Lies" required/></label>
+                <label for="field2"><span>User Name <span class="required">*</span></span><input type="text" class="form-control"  id="username" value="" placeholder="Enter User Name to Login"/></label>
+                <label for="field3"><span>Password <span class="required">*</span></span><input type="password" class="form-control" id="password" value="" placeholder="Enter Password to Login" required/></label>
+                <label for="field4"><span>Path<span class="required">*</span></span><input type="text" class="form-control"  id="path" value="" placeholder="Enter relative path to the Data"/></label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-s btn-block" value="Back" onclick="$('#content').load('./pages/details.html');"/>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Save" onclick="saveServerDetails('POST');"/>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

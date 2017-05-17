@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <script>
+            /* 
+             * To change this license header, choose License Headers in Project Properties.
+             * To change this template file, choose Tools | Templates
+             * and open the template in the editor.
+             */
+
+
+
+            var pathist = [];
+            $.ajax({
+                method: 'POST',
+                url: 'http://127.0.0.1:5000/getFancyInfo',
+                dataType: "json",
+                contentType: "application/json ; charset=utf-8",
+                data: JSON.stringify(pathist),
+                success: function (data) {
+                    console.log(data.listObjects);
+                    $("#tree").fancytree({
+                        checkbox: true,
+                        selectMode: 3,
+                        persist: {
+                            expandLazy: false,
+                            overrideSource: false,
+                            store: "cookie", // force using cookies!
+                        },
+                        source: data.listObjects,
+                        lazyLoad: function (event, data) {
+                            var pathist = [];
+                            var node = data.node;
+                            pathist.push(node.key);
+                            data.result = $.ajax({
+                                url: 'http://127.0.0.1:5000/getFancyInfo',
+                                method: 'POST',
+                                dataType: "json",
+                                contentType: "application/json ; charset=utf-8",
+                                data: JSON.stringify(pathist),
+                                cache: false,
+                                success: function (resp) {
+                                    console.log(resp.listObjects);
+                                    node.addChildren(resp.listObjects);
+                                    node.fixSelection3AfterClick();
+                                    node.toggleExpanded();
+                                }
+                            });
+                        },
+                        select: function (event, data) {
+                            // Get a list of all selected nodes, and convert to a key array:
+                            var selKeys = $.map(data.tree.getSelectedNodes(), function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelection3").text(selKeys.join(", "));
+
+                            // Get a list of all selected TOP nodes
+                            var selRootNodes = data.tree.getSelectedNodes(true);
+                            // ... and convert to a key array:
+                            var selRootKeys = $.map(selRootNodes, function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelectionRootKeys3").text(selRootKeys.join(", "));
+                            $("#echoSelectionRoots3").text(selRootNodes.join(", "));
+                        },
+                        dblclick: function (event, data) {
+                            data.node.toggleSelected();
+                        },
+                        keydown: function (event, data) {
+                            if (event.which === 32) {
+                                data.node.toggleSelected();
+                                return false;
+                            }
+                        },
+                        // The following options are only required, if we have more than one tree on one page:
+                        //        initId: "SOURCE",
+                        cookieId: "fancytree-Cb3",
+                        idPrefix: "fancytree-Cb3-"
+                    });
+                },
+                failure: function (errMsg) {
+                    alert(JSON.stringify(errMsg.toString()));
+                }
+            });
+            $("#btnToggleSelect").click(function () {
+                $("#tree").fancytree("getRootNode").visit(function (node) {
+                    node.toggleSelected();
+                });
+                return false;
+            });
+            $("#btnDeselectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(false);
+                });
+                return false;
+            });
+            $("#btnSelectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(true);
+                });
+                return false;
+            });
+            $("#notebookfile").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            values.push(node.title);
+                            var copiedcontent = values.slice();
+                            $("#notebookfile").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CNotebookfile").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            values.push(node.title);
+                            var copiedcontent = values.slice();
+                            $("#CNotebookfile").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CFiles").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            values.push(node.title);
+                            var copiedcontent = values.slice();
+                            $("#CFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CImagefiles").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            values.push(node.title);
+                            var copiedcontent = values.slice();
+                            $("#CImagefiles").val(copiedcontent);
+                        }
+                    }
+                });
+
+            });
+            $(".disabler").focusin(function () {
+                $('#tree').fancytree('getTree').visit(function (node) {
+                    node.setSelected(false);
+                });
+                $('#tree').addClass('disabled');
+            });
+            $('#add').click(function () {
+                var table = $(this).closest('table');
+                if (table.find('input:text').length < 7) {
+                    table.append('<tr><td style="width:200px;" align="right">Name <td> <input type="text" id="current Name" value="" /> </td></tr>');
+                }
+            });
+            $('#del').click(function () {
+                var table = $(this).closest('table');
+                if (table.find('input:text').length > 1) {
+                    table.find('input:text').last().closest('tr').remove();
+                }
+            });
+            $(function () {
+                $('.formelements').css("display", "none");
+                $(document).tooltip();
+                $('#treelist').change(function () {
+                    $('.formelements').css("display", "none");
+                    if ($('#treelist').val() == 'Info') {
+                        $('#Info').css("display", "block");
+                    }
+                    if ($('#treelist').val() == 'Charts') {
+                        $('#Charts').css("display", "block");
+                    }
+                    if ($('#treelist').val() == 'DataSets') {
+                        $('#DataSets').css("display", "block");
+                    }
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="tree" style="width: 40%; float: left;">
+        </div>
+        <div style="width: 10%"></div>
+        <div id = "menulist" style="width: 50%; float: right; margin-right: 20px; margin-left: 10px;">
+            <div>
+                <form>
+                    <label for="nodeParent">Node Parent:</label>
+                    <select id="treelist" style="width: 100%; display: block;">
+                        <option value="Default"></option>
+                        <option value="Info">Info</option>
+                        <option value="Charts">Charts</option>
+                        <option value="DataSets">DataSets</option>
+                        <option value="Reference">Reference</option>
+                        <option value="Scripts">Scripts</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Tags">Tags</option>
+                    </select>
+                </form>
+            </div>
+            <div style="margin-top: 20px;">
+                <div id="Info" class="formelements">
+                    <div class="form-style-2-heading">Add New Info</div>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>First Name of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="pifname" value="" placeholder="Enter First Name of PI" required/></label>
+                            <br/>
+                            <label for="field2"><span>Middle Name  of PI</span><input type="text" class="form-control disabler textstatic"  id="pimname" value="" placeholder="Enter Middle Name of PI"/></label>
+                            <br/>
+                            <label for="field3"><span>Last Name  of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="pilname" value="" placeholder="Enter Last Name of PI"/></label>
+                            <br/>
+                            <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="collection" value="" placeholder="Enter Collection to which Project belongs"/></label>
+                            <br/>
+                            <label for="field5"><span>Tags<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="tags" value="" placeholder="Enter Tags for the project"/></label>
+                            <br/>
+                            <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control textstatic"  id="notebookfile" value="" title="Check elements from tree you want to add to this text box" placeholder="Enter Main Notebook File Name"/></label>
+                            <br/>
+                            <div id="extraFields">
+                                
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" value="Save" onclick="savePI('POST');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addFields('Info');"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Charts" class="formelements">
+                    <div class="form-style-2-heading">Add New Charts</div>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Kind<span class="required">*</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="ChartsRadio" value="Figure"> Figure <input type="radio" name="ChartsRadio" value="Table"> Table</label>
+                            <br/>
+                            <label for="field2"><span>Caption<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="Caption" value="" placeholder="Enter Caption for Chart"/></label>
+                            <br/>
+                            <label for="field3"><span>Number<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="Number" value="" placeholder="Enter Number for Chart" required/></label>
+                            <br/>
+                            <label for="field4"><span>Files<span class="required">*</span></span><input type="text" class="form-control textstatic"  id="CFiles" value="" placeholder="Add Files Using Checkbox"/></label>
+                            <br/>
+                            <label for="field5"><span>Image Files<span class="required">*</span></span><input type="text" class="form-control textstatic"  id="CImagefiles" value="" placeholder="Add Image File Using Checkbox" required/></label>
+                            <br/>
+                            <label for="field6"><span>Notebook File<span class="required">*</span></span><input type="text" class="form-control textstatic"  id="CNotebookfile" value="" placeholder="Add Notebook File Using Checkbox"/></label>
+                            <br/>
+                            <label for="field7"><span>Properties<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="Properties" value="" placeholder="Add Properties of Chart" required/></label>
+                            <br/>
+                            
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" value="Save" onclick="saveCharts('POST');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addFields('Charts');"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

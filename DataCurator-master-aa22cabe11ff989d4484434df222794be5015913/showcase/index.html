@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Network | Basic usage</title>
+    <script type="text/javascript" src="jquery-3.1.1.js"></script>
+    <!-- Workflow Visualization JS -->
+    <script type="text/javascript" src="vis.min.js"></script>
+
+    <script src="https://d3js.org/d3.v3.js"></script>
+
+    <script type="text/javascript" src="jsnetworkx.js"></script>
+
+
+    <style type="text/css">
+        .wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        
+        #divWorkflow,
+        #divWorkflow2 {
+            width: 100%;
+            height: 500px;
+            border: 1px solid lightgray;
+            vertical-align: middle;
+        }
+        
+        p {
+            max-width: 800px;
+        }
+    </style>
+
+    <script type="text/javascript" charset="utf-8">
+        function bindChartWorkflow(jsonData) {
+
+            var colors = {
+                "red": "h",
+                "blue": "t",
+                "gray": "d",
+                "green": "s",
+                "orange": "c",
+                "pink": "n"
+            };
+
+            var ColorSelection = function (value) {
+                switch (value) {
+                case colors.red:
+                    return "red";
+                    break;
+                case colors.blue:
+                    return "blue";
+                    break;
+                case colors.gray:
+                    return "gray";
+                    break;
+                case colors.green:
+                    return "green";
+                    break;
+                case colors.orange:
+                    return "orange";
+                    break;
+                case colors.pink:
+                    return "pink";
+                    break;
+                }
+            }
+
+            var hasPath = function (var1, var2) {
+                var flag = false;
+                $.each(jsonData.workflow, function (key, value) {
+                    if (key == "edges") {
+                        $.each(value, function (item, val) {
+                            if (var1 == val[0]) {
+                                if (var2 == val[1]) {
+                                    flag = true;
+                                }
+                                if (hasPath(val[1], var2) == true) {
+                                    flag = true;
+                                }
+                            }
+                        })
+                    }
+                })
+                return flag;
+            }
+
+            // create an array with nodes
+            var nodes = new vis.DataSet();
+
+            // create an array with edges
+            var edges = new vis.DataSet();
+
+            //Only filter particualr Chart here we using c4
+            var chartID = "c4";
+
+            nodes.add([{
+                id: chartID,
+                label: chartID,
+                color: ColorSelection(chartID.charAt(0))
+		}]);
+
+            $.each(jsonData.workflow, function (key, value) {
+                if (key == "edges") {
+                    //EDGES
+                    $.each(value, function (item, val) {
+
+                        if (val[1] == chartID) {
+                            edges.add([{
+                                from: val[0],
+                                to: val[1]
+						}]);
+                        }
+
+                        if (hasPath(val[1], chartID) == true) {
+                            edges.add([{
+                                from: val[0],
+                                to: val[1]
+						}]);
+                            //NODES
+                            var set = nodes.getIds();
+                            if (set.indexOf(val[0]) == -1) {
+                                nodes.add([{
+                                    id: val[0],
+                                    label: val[0],
+                                    color: ColorSelection(val[0].charAt(0))
+							}]);
+                            }
+                            if (set.indexOf(val[1]) == -1) {
+                                nodes.add([{
+                                    id: val[1],
+                                    label: val[1],
+                                    color: ColorSelection(val[1].charAt(0))
+							}]);
+                            }
+                        }
+
+                    })
+                }
+
+            });
+
+            // create a network
+            var container = document.getElementById('divWorkflow2');
+
+            var options = {
+                autoResize: true,
+                clickToUse: false,
+                edges: {
+                    color: 'black',
+                    arrows: 'middle',
+                    width: 2
+                },
+                nodes: {
+                    shape: 'dot',
+                    size: 30,
+                    font: {
+                        size: 32,
+                        color: '#800000'
+                    },
+                    borderWidth: 2,
+                    /*scaling: {
+                        label: true
+                    },*/
+                    shadow: true
+                },
+                configure: {
+                    //enabled: true
+                    /*,
+                    filter: function (option, path) {
+                            //alert(path);
+                            return path.indexOf('physics') !== -1;
+                        }*/
+                    //,
+                    //'nodes,edges',
+                    //container: undefined,
+                    //showButton: true
+                },
+                interaction: {
+                    hover: true
+                }
+            };
+            //var network = new vis.Network(container, data, options);
+
+            var G = new jsnx.DiGraph();
+
+            $.each(jsonData.workflow, function (key, value) {
+                if (key == "nodes") {
+                    //NODES
+                    $.each(value, function (index, val) {
+                        G.addNode(val, {
+                            color: ColorSelection(val.charAt(0))
+                        });
+                    });
+                } else if (key == "edges") {
+                    //EDGES				
+                    //console.log(value);
+                    G.addEdgesFrom(value);
+                }
+
+            });
+
+            //console.log(G.nodes());
+            //console.log(G.edges());
+            //console.log(G);
+
+            //alert(jsnx.hasPathG, { source: value, target: "c4" }));
+
+            var connectedNode_list = new Array();
+            var unconnectedNode_list = new Array();
+
+            // 		console.log(G.nodes());
+            $.each(G.nodes(), function (index, value) {
+                //Find sub graph for "c0"
+                if (jsnx.hasPath(G, {
+                        source: value,
+                        target: "c4"
+                    })) {
+                    connectedNode_list.push(value);
+                } else {
+                    unconnectedNode_list.push(value);
+                }
+            });
+
+            var S = G.subgraph(connectedNode_list);
+
+            //console.log(S);
+
+            // `jsnx.draw` accept a graph and configuration object		
+            jsnx.draw(S, {
+                element: '#divWorkflow',
+                withLabels: true,
+                nodeStyle: {
+                    fill: function (d) {
+                        return d.data.color;
+                    }
+                },
+                nodeAttr: {
+                    r: function (d) {
+                        // `d` has the properties `node`, `data` and `G`
+                        //return d.data.count;
+                        return 14;
+                    }
+                },
+                // 			layoutAttr : {
+                // 				//charge : -120,
+                // 				linkDistance : 150
+                // 			},
+                edgeStyle: {
+                    'stroke': '#000',
+                    'stroke-width': 6
+                },
+                labelStyle: {
+                    fill: 'white'
+                },
+                stickyDrag: true
+            });
+
+
+            //Binding the visjs container
+            // TO DO subgraph remove the unconnected nodes
+
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+
+            $.each(unconnectedNode_list, function (index, item) {
+                // do something with `item` (or `this` is also `item` if you like)
+                //console.log(item);
+                nodes.remove(item);
+            });
+
+
+
+
+            var network = new vis.Network(container, data, options);
+
+        }
+
+        $(function () {
+            $.ajax({
+                type: "POST",
+                url: "./desc.json",
+                dataType: "json"
+                    //,
+                    //cache : false,
+                    //async : false
+            }).done(function (data) {
+                bindChartWorkflow(data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR.responseText.message + ': ' + errorThrown);
+            }).always(function () {
+                //alert("Complete!");
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="divWorkflow"></div>
+        <div id="divWorkflow2"></div>
+    </div>
+</body>
+
+</html>
