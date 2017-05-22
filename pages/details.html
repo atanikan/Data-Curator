@@ -12,10 +12,9 @@ and open the template in the editor.
 
         <script>
             $(document).ready(function () {
-                savePersonalDetails('GET');
+                savePersonalDetails("GET");
             });
             function savePersonalDetails(type) {
-                var type = type;
                 var fname = $("#fname").val();
                 var mname = $("#mname").val();
                 var lname = $("#lname").val();
@@ -23,13 +22,18 @@ and open the template in the editor.
                 plist.push(type);
                 if (fname.toString() != "")
                     plist.push(fname);
+                else{
+                    plist.push("N/A");
+                }
                 if (mname.toString() != "")
                     plist.push(mname);
-                else{
+                else {
                     plist.push("N/A");
                 }
                 if (lname.toString() != "")
                     plist.push(lname);
+                else
+                    plist.push("N/A");
                 $.ajax({
                     method: 'POST',
                     url: 'http://127.0.0.1:5000/getPersonalDetails',
@@ -45,15 +49,33 @@ and open the template in the editor.
                             $("#detailsid").addClass("is-complete");
                             $("#content").load("./pages/server.html");
                         } else {
-                                $("#fname").val(data.pdetails.desc.firstName);
-                                $("#mname").val(data.pdetails.desc.middleName);
-                                $("#lname").val(data.pdetails.desc.lastName);
-                                $('#loading').css("display", "none");
-                                $('#datacontent').css("display", "block");
+                            $("#fname").val(data.pdetails.desc.firstName);
+                            $("#mname").val(data.pdetails.desc.middleName);
+                            $("#lname").val(data.pdetails.desc.lastName);
+                            $('#loading').css("display", "none");
+                            $('#datacontent').css("display", "block");
                         }
                     }
                 });
             }
+
+            (function () {
+                $('.mandate').keyup(function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
         </script>
 
 
@@ -82,12 +104,14 @@ and open the template in the editor.
         <div class="form-style-2 centrist">
             <div class="form-style-2-heading">Provide your information</div>
             <form>
-                <label for="field1"><span>First Name <span class="required">*</span></span><input type="text" class="form-control"  id="fname" value="" placeholder="Enter Your First Name" required/></label>
+                <label for="field1"><span>First Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="fname" value="" placeholder="Enter Your First Name"/></label>
                 <label for="field2"><span>Middle Name</span><input type="text" class="form-control"  id="mname" value="" placeholder="Enter Your Middle Name"/></label>
-                <label for="field3"><span>Last Name <span class="required">*</span></span><input type="text" class="form-control" id="lname" value="" placeholder="Enter Your Last Name" required/></label>
+                <label for="field3"><span>Last Name <span class="required">*</span></span><input type="text" class="form-control mandate" id="lname" value="" placeholder="Enter Your Last Name"/></label>
                 <label>
-                    <input type="button" class="btn btn-lg btn-s btn-block" value="Back" onclick="window.location = 'index.html';"/>
-                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Save" onclick="savePersonalDetails('POST');"/>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="window.location = 'index.html';"/>
+                </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="savePersonalDetails('POST');"/>
                 </label>
             </form>
         </div>

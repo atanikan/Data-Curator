@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <script>
+            /* 
+             * To change this license header, choose License Headers in Project Properties.
+             * To change this template file, choose Tools | Templates
+             * and open the template in the editor.
+             */
+            $(document).ready(function () {
+                saveProjectPath('GET');
+            });
+            var pathist = [];
+            $.ajax({
+                method: 'POST',
+                url: 'http://127.0.0.1:5000/getTreeInfo',
+                dataType: "json",
+                contentType: "application/json ; charset=utf-8",
+                data: JSON.stringify(pathist),
+                success: function (data) {
+                    console.log(data.listObjects);
+                    $("#projtree").fancytree({
+                        checkbox: false,
+                        selectMode: 1,
+                        persist: {
+                            expandLazy: false,
+                            overrideSource: false,
+                            store: "cookie", // force using cookies!
+                        },
+                        source: data.listObjects,
+                        lazyLoad: function (event, data) {
+                            var pathist = [];
+                            var node = data.node;
+                            pathist.push(node.key);
+                            data.result = $.ajax({
+                                url: 'http://127.0.0.1:5000/getTreeInfo',
+                                method: 'POST',
+                                dataType: "json",
+                                contentType: "application/json ; charset=utf-8",
+                                data: JSON.stringify(pathist),
+                                cache: false,
+                                success: function (resp) {
+                                    console.log(resp.listObjects);
+                                    node.addChildren(resp.listObjects);
+                                    //node.fixSelection3AfterClick();
+                                    node.toggleExpanded();
+                                }
+                            });
+                        },
+                        activate: function (event, data) {
+                            $("#path").val(data.node.key);
+                        },
+                        cookieId: "fancytree-Cb4",
+                        idPrefix: "fancytree-Cb4-"
+                    });
+
+                },
+                failure: function (errMsg) {
+                    alert(JSON.stringify(errMsg.toString()));
+                }
+            });
+
+            function saveProjectPath(type) {
+                var path = $("#path").val();
+                pathList = []
+                pathList.push(type);
+                if (path.toString() != "") {
+                    pathList.push(path);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/setPath',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(pathList),
+                    success: function (data) {
+                        $('#projName').val(data.projectPath.projectName);
+                        if (type === "GET") {
+                            $("#path").val(data.projectPath.Path);
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#projectid").addClass("is-complete");
+                            $("#curateid").addClass("is-active");
+                        } else {
+                            $("#content").load("./pages/curate.html");
+                        }
+                    }
+                });
+
+
+            }
+
+            (function () {
+                $('.mandate').focusin(function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
+
+
+            $(function () {
+                $(document).tooltip();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="projtree" style="width: 40%; float: left;">
+        </div>
+        <div style="width: 10%"></div>
+        <div id = "menulist" style="width: 50%; float: right; margin-right: 20px; margin-left: 10px;">
+            <form>
+                <label for="field5"><span>Image Files<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="path" value="" placeholder="Naviagte To Path Using Tree" required/></label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="$('#content').load('./pages/server.html');"/>
+                </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="saveProjectPath('POST');"/>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

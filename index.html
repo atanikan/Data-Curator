@@ -14,6 +14,7 @@
         <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <script src="./src/jquery.fancytree.js"></script>
         <script src="./scripts/customjs.js"></script>
+        <script src="./scripts/jquery-sortable.js"></script>
         <script src="./jquery-ui-1.12.1.custom/jquery-ui.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!-- (Irrelevant source removed.) -->
@@ -25,22 +26,32 @@
             $(document).ready(function () {
                 //$("#content").load("./pages/welcome.html");
                 $('#loading').css("display", "none");
-                $.ajax({
-                    method: 'GET',
-                    url: 'http://127.0.0.1:5000/',
-                    dataType: "json",
-                    contentType: "application/json ; charset=utf-8",
-                    success: function (data) {
-//                        console.log(data.pList[0].desc.lastName);
-
-                    }
-
+//                $.ajax({
+//                    method: 'GET',
+//                    url: 'http://127.0.0.1:5000/',
+//                    dataType: "json",
+//                    contentType: "application/json ; charset=utf-8",
+//                    success: function (data) {
+////                        console.log(data.pList[0].desc.lastName);
+//
+//                    }
+//
+//                });
+                $("#project").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#projectid").addClass("is-active")
+                    $("#content").load("./pages/project.html");
                 });
 
                 $("#curate").click(function () {
                     $("#navbar>li.is-active").removeClass("is-active");
                     $("#curateid").addClass("is-active")
                     $("#content").load("./pages/curate.html");
+                });
+                $("#server").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#serverid").addClass("is-active")
+                    $("#content").load("./pages/server.html");
                 });
                 $("#details").click(function () {
                     $("#navbar>li.is-active").removeClass("is-active");
@@ -86,14 +97,14 @@
                             Enter Server Information
                         </span>
                     </li>
-                    <li id="curateid" class="progress-step">
-                        <a href="#" id="curate"><span class="progress-marker">4</span></a>
+                    <li id="projectid" class="progress-step">
+                        <a href="#" id="project"><span class="progress-marker">4</span></a>
                         <span class="progress-text">
-                            Enter Project Metadata To Curate
+                            Direct To Project
                         </span>
                     </li>
-                    <li class="progress-step">
-                        <span class="progress-marker">5</span>
+                    <li id="curateid" class="progress-step">
+                        <a href="#" id="curate"><span class="progress-marker">5</span></a>
                         <span class="progress-text">
                             Enter Project Metadata To Curate
                         </span>
@@ -137,6 +148,7 @@
                     </label>
                 </div>
             </div>
+            <input type="hidden" id="projName" value=""/>
         </div>
         <!-- (Irrelevant source removed.) -->
     </body>

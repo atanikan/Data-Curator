@@ -11,6 +11,7 @@ from src.DataCurator import *
 import os
 from flask_kvsession import KVSessionExtension
 from simplekv.memory.redisstore import RedisStore
+from simplekv import TimeToLiveMixin
 
 ############################################
 # Create a folder that contains the output #
@@ -21,17 +22,26 @@ KVSessionExtension(store, app)
 
 dirname = "jacs.6b00225"
 detailsCounter = []
+chartMap = {}
+chartsaveaslist = []
 if not os.path.exists(dirname):
    os.makedirs(dirname)
 
 #################
 # Define People #
 #################
+pid = ""
 @app.route('/',methods = ['GET'])
 def newUser():
-	pid = 0
+	global pid
+	pid = pid + 1
 	print("here")
 	return jsonify({'pid':pid})
+	
+	
+@app.route('/DeleteAll',methods = ['GET'])
+def DeleteAll():
+	store.flushdb()
 
 @app.route('/getPersonalDetails',methods=['POST'])
 def getPersonalDetails():
@@ -40,35 +50,44 @@ def getPersonalDetails():
 	fname = ""
 	middleName = ""
 	lastName = ""
-	print(store)
-	if("GET" in pDetails[0]):
-		print(pDetails)
-		if 'pfirstName' in store and store.get('pfirstName') is not None:
-			print("here")
-			fname = str(store.get('pfirstName'))[2:len(str(store.get('pfirstName')))-1]
-		if 'pmiddleName' in store and store.get('pmiddleName') is not None:
-			middleName = str(store.get('pmiddleName'))[2:len(str(store.get('pmiddleName')))-1]
-		if 'plastName' in store and store.get('plastName') is not None:
-			print("here1")
-			lastName = str(store.get('plastName'))[2:len(str(store.get('plastName')))-1]
-	else:
+	global pid
+	print(pDetails)
+	#print(store)
+	#if("GET" in pDetails[0]):
+	#	print(pDetails)
+	#	if pfnamekey in store and store.get(pfnamekey) is not None:
+	#		print("here")
+	#		fname = str(store.get(pfnamekey))[2:len(str(store.get(pfnamekey)))-1]
+	#	if pmnamekey in store and store.get(pmnamekey) is not None:
+	#		middleName = str(store.get(pmnamekey))[2:len(str(store.get(pmnamekey)))-1]
+	#	if plnamekey in store and store.get(plnamekey) is not None:
+	#		print("here1")
+	#		lastName = str(store.get(plnamekey))[2:len(str(store.get(plnamekey)))-1]
+	#else:
+	type = str(pDetails[0])
+	if("N/A" not in str(pDetails[1])):
 		fname = str(pDetails[1])
-		if("N/A" not in str(pDetails[2])):
-			middleName = str(pDetails[2])
+	if("N/A" not in str(pDetails[2])):
+		middleName = str(pDetails[2])
+	if("N/A" not in str(pDetails[3])):
 		lastName = str(pDetails[3])
 	if(fname is not None):
 		person.addFirstName(str(fname))
 		#session['pfirstName'] = fname
-		store.put('pfirstName', fname)
+		#if pfnamekey not in store:
+		#	store.put(pfnamekey, fname)
 	if(middleName is not None):
 		person.addMiddleName(str(middleName))
 		#session['pmiddleName'] = middleName
-		store.put('pmiddleName',middleName)
+		#if pmnamekey not in store:
+		#	store.put(pmnamekey,middleName)
 	if(lastName is not None):
 		person.addLastName(str(lastName))
 		#session['plastName'] = lastName
-		store.put('plastName',lastName)
+		#if plnamekey not in store:
+		#	store.put(plnamekey,lastName)
 	print(store)
+	pid=fname+middleName+lastName
 	return jsonify({'pdetails':person.__dict__})	
 	
 @app.route('/getServerDetails',methods=['POST'])
@@ -79,18 +98,22 @@ def getServerDetails():
 	UserName = ""
 	Password = ""
 	Path = ""
+	serverkey = 'ServerName'+str( pid)
+	userkey = 'UserName'+str( pid)
+	passkey = 'Password'+str( pid)
+	pathkey = 'Path'+str( pid)
 	if("GET" in serverDetails[0]):
 		print(serverDetails)
-		if 'ServerName' in store and store.get('ServerName') is not None:
-			ServerName = str(store.get('ServerName'))[2:len(str(store.get('ServerName')))-1]
-		if 'UserName' in store and store.get('UserName') is not None:
-			UserName = str(store.get('UserName'))[2:len(str(store.get('UserName')))-1]
-		if 'Password' in store and store.get('Password') is not None:
+		if serverkey in store and store.get(serverkey) is not None:
+			ServerName = str(store.get(serverkey))[2:len(str(store.get(serverkey)))-1]
+		if userkey in store and store.get(userkey) is not None:
+			UserName = str(store.get(userkey))[2:len(str(store.get(userkey)))-1]
+		if passkey in store and store.get(passkey) is not None:
 			print("here1")
-			Password = str(store.get('Password'))[2:len(str(store.get('Password')))-1]
-		if 'Path' in store and store.get('Path') is not None:
+			Password = str(store.get(passkey))[2:len(str(store.get(passkey)))-1]
+		if pathkey in store and store.get(pathkey) is not None:
 			print("here1")
-			Path = str(store.get('Path'))[2:len(str(store.get('Path')))-1]
+			Path = str(store.get(pathkey))[2:len(str(store.get(pathkey)))-1]
 	else:
 		ServerName = str(serverDetails[1])
 		UserName = str(serverDetails[2])
@@ -98,16 +121,16 @@ def getServerDetails():
 		Path = str(serverDetails[4])
 	if(ServerName is not None):
 		server.addServerName(str(ServerName))
-		store.put('ServerName', ServerName)
+		store.put(serverkey, ServerName, ttl_secs=14400)
 	if(UserName is not None):
 		server.addUsername(str(UserName))
-		store.put('UserName',UserName)
+		store.put(userkey,UserName, ttl_secs=14400)
 	if(Password is not None):
 		server.addPassword(str(Password))
-		store.put('Password',Password)
+		store.put(passkey,Password, ttl_secs=14400)
 	if(Path is not None):
 		server.addPath(str(Path))
-		store.put('Path',Path)
+		store.put(pathkey,Path, ttl_secs=14400)
 	print(store)
 	return jsonify({'serverDetails':server.__dict__})	
 
@@ -121,24 +144,29 @@ class DirectoryTree:
 	lazy = ""
 	folder= ""
 	source=""
-@app.route('/getFancyInfo',methods=['POST'])
-def getFancyInfo():
+	
+@app.route('/getTreeInfo',methods=['POST'])
+def getTreeInfo():
 	if(request is not None):
 		pathDetails = request.json
 	print("here")
 	ssh = paramiko.SSHClient()
 	# automatically add keys without requiring human intervention
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	content_hostName = str(store.get('ServerName'))[2:len(str(store.get('ServerName')))-1]
+	serverkey = 'ServerName'+str( pid)
+	userkey = 'UserName'+str( pid)
+	passkey = 'Password'+str( pid)
+	pathkey = 'Path'+str( pid)
+	content_hostName = str(store.get(serverkey))[2:len(str(store.get(serverkey)))-1]
 	content_path = ''
 	if(pathDetails is not None):
 		if(len(pathDetails) > 0):
 			content_path = str(pathDetails[0])
 		else:
-			content_path= str(store.get('Path'))[2:len(str(store.get('Path')))-1]
+			content_path= str(store.get(pathkey))[2:len(str(store.get(pathkey)))-1]
 	print(content_path)
-	content_username = str(store.get('UserName'))[2:len(str(store.get('UserName')))-1]
-	content_password = str(store.get('Password'))[2:len(str(store.get('Password')))-1]
+	content_username = str(store.get(userkey))[2:len(str(store.get(userkey)))-1]
+	content_password = str(store.get(passkey))[2:len(str(store.get(passkey)))-1]
 	print(content_hostName)
 	print(content_path)
 	print(content_username)
@@ -166,19 +194,223 @@ def getFancyInfo():
 			#dataFile.parent = path
 		dataFile.key = path + "/" + file
 		dataFile.id = path + "/" + file
+		relPath = str(path + "/" + file).split(parentName,1)[1]
+		dataFile.parent = parentName + "/" + relPath
 		if 'd' in lstatout:
 			prev = file
 			dataFile.folder = "true"
 			dataFile.lazy = 'true'
-		print(dataFile.parent)
-		print(dataFile.title)
-		print(dataFile.key)
 		listObjects.append(dataFile.__dict__)
 	return jsonify({'listObjects':listObjects})	
 
 
+class ProjectPath:
+	projectName = ""
+	Path=""
 
+	
+@app.route('/setPath',methods=['POST'])
+def setPath():
+	projPath = ProjectPath()
+	projectPath = request.json
+	type = str(projectPath[0])
+	path = ""
+	pathkey = 'Path'+str( pid)
+	projkey = 'ProjectName'+str( pid)
+	if("GET" in type):
+		path = str(store.get(pathkey))[2:len(str(store.get(pathkey)))-1]
+	else:
+		store.put(pathkey,str(projectPath[1]), ttl_secs=14400)
+		path = str(projectPath[1])
+	parent = path.split("/")
+	parentName = parent[len(parent)-1]
+	print("here")
+	print(parentName)
+	projPath.projectName = parentName
+	projPath.Path = path
+	store.put(projkey,parentName, ttl_secs=14400)
+	return jsonify({'projectPath':projPath.__dict__})	
 
+@app.route('/getInfo',methods=['POST'])
+def getInfo():
+	iDetails = request.json
+	person = Person()
+	fname = store.get('pfirstName'+str( pid))
+	middleName = store.get('pmiddleName'+str( pid))
+	lastName = store.get('plastName'+str( pid))
+	person.addFirstName(str(fname))
+	person.addMiddleName(str(middleName))
+	person.addLastName(str(lastName))
+	print(store)
+	if("GET" in pDetails[0]):
+		print(pDetails)
+		if 'pfirstName'+str( pid) in store and store.get('pfirstName'+str( pid)) is not None:
+			print("here")
+			fname = str(store.get('pfirstName'+str( pid) ))[2:len(str(store.get('pfirstName'+str( pid) )))-1]
+		if 'pmiddleName'+str( pid)  in store and store.get('pmiddleName'+str( pid) ) is not None:
+			middleName = str(store.get('pmiddleName'+str( pid)))[2:len(str(store.get('pmiddleName'+str( pid))))-1]
+		if 'plastName'+str( pid) in store and store.get('plastName'+str( pid)) is not None:
+			print("here1")
+			lastName = str(store.get('plastName'+str( pid)))[2:len(str(store.get('plastName'+str( pid))))-1]
+	else:
+		fname = str(pDetails[1])
+		if("N/A" not in str(pDetails[2])):
+			middleName = str(pDetails[2])
+		lastName = str(pDetails[3])
+	if(fname is not None):
+		person.addFirstName(str(fname))
+		#session['pfirstName'] = fname
+		if 'pfirstName'+str( pid) not in store:
+			store.put('pfirstName'+str( pid), fname, ttl_secs=14400)
+	if(middleName is not None):
+		person.addMiddleName(str(middleName))
+		#session['pmiddleName'] = middleName
+		if 'pmiddleName'+str( pid) not in store:
+			store.put('pmiddleName'+str( pid),middleName, ttl_secs=14400)
+	if(lastName is not None):
+		person.addLastName(str(lastName))
+		#session['plastName'] = lastName
+		if 'plastName'+str( pid) not in store:
+			store.put('plastName'+str( pid),lastName, ttl_secs=14400)
+	print(store)
+	return jsonify({'pdetails':person.__dict__})
+
+@app.route('/getCharts',methods=['POST'])
+def getCharts():
+	cDetails = request.json
+	chart = Chart("figure")
+	type = str(cDetails[0])
+	csaveas = str(cDetails[1])
+	if("N/A" not in str(cDetails[1])):
+		chart.addSaveAs(csaveas)
+	radioVal = ""
+	caption = ""
+	number = ""
+	cfiles = ""
+	cimagefiles = ""
+	cnotebookfiles = ""
+	cproperties = ""
+	clabels = []
+	cvalues = []
+	chartsList = []
+	#chart = Chart("")
+	print(cDetails)
+	if "INIT" in type:
+		if "chartsaveaslist" in store:
+			print(store.get('chartsaveaslist'))
+			print(">>",str(store.get('chartsaveaslist'))[2:len(str(store.get('chartsaveaslist')))-1])
+			for key in eval(str(store.get('chartsaveaslist'))[3:len(str(store.get('chartsaveaslist')))-2]):
+				print(key)
+				#print(str(key)[1:len(str(key))-1])
+				chartsList.append(key)
+	if "GET" in type:
+		if str('radioVal'+csaveas+str( pid)) in store and store.get(str('radioVal'+csaveas+str( pid))) is not None:
+			radioVal = str(store.get(str('radioVal'+csaveas+str( pid))))[2:len(str(store.get(str('radioVal'+csaveas+str( pid)))))-1]
+		if str('caption'+csaveas+str( pid)) in store and store.get(str('caption'+csaveas+str( pid))) is not None:
+			caption = str(store.get(str('caption'+csaveas+str( pid))))[2:len(str(store.get(str('caption'+csaveas+str( pid)))))-1]
+		if str('number'+csaveas+str( pid)) in store and store.get(str('number'+csaveas+str( pid))) is not None:
+			number = str(store.get(str('number'+csaveas+str( pid))))[2:len(str(store.get(str('number'+csaveas+str( pid)))))-1]
+		if str('cfiles'+csaveas+str( pid)) in store and store.get(str('cfiles'+csaveas+str( pid))) is not None:
+			cfiles = str(store.get(str('cfiles'+csaveas+str( pid))))[2:len(str(store.get(str('cfiles'+csaveas+str( pid)))))-1]
+		if str('cimagefiles'+csaveas+str( pid)) in store and store.get(str('cimagefiles'+csaveas+str( pid))) is not None:
+			cimagefiles = str(store.get(str('cimagefiles'+csaveas+str( pid))))[2:len(str(store.get(str('cimagefiles'+csaveas+str( pid)))))-1]
+		if str('cnotebookfiles'+csaveas+str( pid)) in store and store.get(str('cnotebookfiles'+csaveas+str( pid))) is not None:
+			cnotebookfiles = str(store.get(str('cnotebookfiles'+csaveas+str( pid))))[2:len(str(store.get(str('cnotebookfiles'+csaveas+str( pid)))))-1]
+		if str('cproperties'+csaveas+str( pid)) in store and store.get(str('cproperties'+csaveas+str( pid))) is not None:
+			cproperties = str(store.get(str('cproperties'+csaveas+str( pid))))[2:len(str(store.get(str('cproperties'+csaveas+str( pid)))))-1]
+		if str('clabels'+csaveas+str( pid)) in store and store.get(str('clabels'+csaveas+str( pid))) is not None:
+			clabels.append(str(store.get(str('clabels'+csaveas+str( pid))))[2:len(str(store.get(str('clabels'+csaveas+str( pid)))))-1])
+		if str('cvalues'+csaveas+str( pid)) in store and store.get(str('cvalues'+csaveas+str( pid))) is not None:
+			cvalues.append(str(store.get(str('cvalues'+csaveas+str( pid))))[2:len(str(store.get(str('cvalues'+csaveas+str( pid)))))-1])
+	if "POST" in type:
+		radioVal = str(cDetails[2])
+		caption = str(cDetails[3])
+		number = str(cDetails[4])
+		cfiles = str(cDetails[5])
+		cimagefiles = str(cDetails[6])
+		cnotebookfiles = str(cDetails[7])
+		cproperties = str(cDetails[8])
+		if "N/A" not in str(cDetails[9]):
+			clabels.append(str(cDetails[9]))
+		if "N/A" not in str(cDetails[14400]):
+			cvalues.append(str(cDetails[14400]))
+	if "POST" in type or "GET" in type:
+		print("why not")
+		if radioVal and not radioVal.isspace():
+			print("here>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+			chart.addKind(radioVal)
+			#session['pfirstName'] = fname
+			if str('radioVal'+csaveas+str( pid)) not in store:
+				store.put(str('radioVal'+csaveas+str( pid)), radioVal, ttl_secs=14400)
+		if caption and not caption.isspace():
+			print("here2>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+			chart.addCaption(caption)
+			#session['pfirstName'] = fname
+			if str('caption'+csaveas+str( pid)) not in store:
+				store.put(str('caption'+csaveas+str( pid)), caption, ttl_secs=14400)
+		if number and not number.isspace():
+			chart.addNumber(number)
+			#session['pfirstName'] = fname
+			if str('number'+csaveas+str( pid)) not in store:
+				store.put(str('number'+csaveas+str( pid)), number, ttl_secs=14400)
+				
+		if cfiles and not cfiles.isspace():
+			chart.addFile(cfiles)
+			#session['pfirstName'] = fname
+			if str('cfiles'+csaveas+str( pid)) not in store:
+				store.put(str('cfiles'+csaveas+str( pid)), cfiles, ttl_secs=14400)
+				
+		if cimagefiles and not cimagefiles.isspace():
+			chart.addImageFile(cimagefiles)
+			#session['pfirstName'] = fname
+			if str('cimagefiles'+csaveas+str( pid)) not in store:
+				store.put(str('cimagefiles'+csaveas+str( pid)), cimagefiles, ttl_secs=14400)
+				
+		if cnotebookfiles and not cnotebookfiles.isspace():
+			chart.addNotebookFile(cnotebookfiles)
+			#session['pfirstName'] = fname
+			if str('cnotebookfiles'+csaveas+str( pid)) not in store:
+				store.put(str('cnotebookfiles'+csaveas+str( pid)), cnotebookfiles, ttl_secs=14400)
+				
+		if cproperties and not cproperties.isspace():
+			chart.addProperty(cproperties)
+			#session['pfirstName'] = fname
+			if str('cproperties'+csaveas+str( pid)) not in store:
+				store.put(str('cproperties'+csaveas+str(pid)), cproperties, ttl_secs=14400)
+		if len(clabels)>0 and len(cvalues)>0:
+			for f, b in zip(clabels, cvalues):
+				chart.addExtra(f,b)
+				store.put(str('clabels'+csaveas+str(pid)), clabels, ttl_secs=14400)
+				store.put(str('cvalues'+csaveas+str(pid)), cvalues, ttl_secs=14400)
+		if "N/A" not in csaveas:
+			chartMap[str(csaveas)] = chart
+			chartsaveaslist.append(str(csaveas))
+			store.put("chartsaveaslist",chartsaveaslist, ttl_secs=14400)
+	print(chart.__dict__)
+	return jsonify({'cdetails':chart.__dict__,'chartList':chartsList})
+	
+
+@app.route('/delCharts',methods=['POST'])
+def delCharts():
+	delsave = request.json
+	csaveas = str(delsave[0])
+	if csaveas in chartMap:
+		del chartMap[str(csaveas)]
+	if str('radioVal'+csaveas+str( pid)) in store:
+		store.delete('radioVal'+csaveas+str( pid))
+	if str('caption'+csaveas+str( pid)) in store:
+		store.delete('caption'+csaveas+str( pid))
+	if str('number'+csaveas+str( pid)) in store:
+		store.delete('number'+csaveas+str( pid))
+	if str('cfiles'+csaveas+str( pid)) in store:
+		store.delete('cfiles'+csaveas+str( pid))
+	if str('cimagefiles'+csaveas+str( pid)) in store:
+		store.delete('cimagefiles'+csaveas+str( pid))
+	if str('cnotebookfiles'+csaveas+str( pid)) in store:
+		store.delete('cnotebookfiles'+csaveas+str( pid))
+	if str('cproperties'+csaveas+str( pid)) in store:
+		store.delete('cproperties'+csaveas+str( pid))
+	return jsonify({'delcdetails':csaveas})
 
 gaiduk = Person()
 gaiduk.addFirstName("Alex")
@@ -264,7 +496,7 @@ ref.addAuthor(skone)
 ref.addAuthor(winter) 
 ref.addAuthor(galli) 
 ref.addTitle("Photoelectron spectra of aqueous solutions from first principle")
-ref.addDOI("10.1021/jacs.6b00225") 
+ref.addDOI("14400.1021/jacs.6b00225") 
 ref.addJournal("Journal of the American Chemical Society","JACS Comm.") 
 ref.addVolume("138") 
 ref.addPage("6912") 
@@ -488,8 +720,8 @@ project.dumpJSON(dirname + "/desc.json")
 # MongoDB operations #
 ######################
 
-#pid = project.sendDescriptor(dirname + '/desc.json','mongodb.rcc.uchicago.edu','imedb_client','IMEdbClientPWD') # ip, username, password
-#project.fetchDescriptor(pid,'mongodb.rcc.uchicago.edu','imedb_client','IMEdbClientPWD')
+# pid = project.sendDescriptor(dirname + '/desc.json','mongodb.rcc.uchicago.edu','imedb_client','IMEdbClientPWD') # ip, username, password
+#project.fetchDescriptor( pid,'mongodb.rcc.uchicago.edu','imedb_client','IMEdbClientPWD')
 
 if __name__=="__main__":
 	app.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'

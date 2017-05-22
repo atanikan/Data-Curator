@@ -312,11 +312,25 @@ class Tool(Descriptor) :
        if not "URLs" in self.desc :
           self.desc["URLs"] = []
        self.desc["URLs"].append( url )
+	
+	#
+    # add URL
+    #
+    def addExpURL(self, url) :
+       if not "ExpURLs" in self.desc :
+          self.desc["ExpURLs"] = []
+       self.desc["ExpURLs"].append( url )
     #
     # add Tag
     #
     def addTag(self, tag) :
        Descriptor.addTag(self,tag)
+	   
+	#
+    # add Saveas
+    #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
     #
     # add Extra
     #
@@ -442,7 +456,15 @@ class Reference(Descriptor) :
          self.desc["publishedDate"] = str(parser.parse(publishedDate))
        else :
           print("Cannot add publishedDate, you must provide publishedDate as str.")
+    
+	#
+    # add Saveas
     #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
+	
+	
+	#
     # add Tag
     #
     def addTag(self, tag) :
@@ -500,7 +522,17 @@ class Dataset(Descriptor) :
     #
     def addTag(self, tag) :
        Descriptor.addTag(self,tag)
+    
+	
+	#
+    # add Saveas
     #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
+	
+	
+	
+	#
     # add Extra
     #
     def addExtra(self, field, value ) :
@@ -553,7 +585,14 @@ class Script(Descriptor) :
     #
     def addTag(self, tag) :
        Descriptor.addTag(self,tag)
+    
+	#
+    # add Saveas
     #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
+	
+	#
     # add Extra
     #
     def addExtra(self, field, value ) :
@@ -694,6 +733,16 @@ class Chart(Descriptor) :
     #
     def addTag(self, tag) :
        Descriptor.addTag(self,tag)
+	#
+    # add Kind
+    #
+    def addKind(self, kind) :
+       self.desc["kind"] = kind
+	#
+    # add Saveas
+    #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
     #
     # add Extra
     #

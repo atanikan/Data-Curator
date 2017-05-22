@@ -41,9 +41,9 @@ and open the template in the editor.
                         console.log(data);
                         if (type == "POST") {
                             $("#navbar>li.is-active").removeClass("is-active");
-                            $("#serverid").addClass("is-active");
-                            $("#detailsid").addClass("is-complete");
-                            $("#content").load("./pages/curate.html");
+                            $("#serverid").addClass("is-complete");
+                            $("#projectid").addClass("is-active");
+                            $("#content").load("./pages/project.html");
                         } else {
                                 $("#servername").val(data.serverDetails.desc.serverName);
                                 $("#username").val(data.serverDetails.desc.Username);
@@ -53,6 +53,32 @@ and open the template in the editor.
                     }
                 });
             }
+            
+            
+            
+            (function () {
+                $('.mandate').focusin(function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
+            
+            
+            
+            
+            
+            
         </script>
 
 
@@ -81,13 +107,15 @@ and open the template in the editor.
         <div class="form-style-2 centrist">
             <div class="form-style-2-heading">Provide Server Details</div>
             <form>
-                <label for="field1"><span>Server Name <span class="required">*</span></span><input type="text" class="form-control"  id="servername" value="" placeholder="Enter Server Name Where Data Lies" required/></label>
-                <label for="field2"><span>User Name <span class="required">*</span></span><input type="text" class="form-control"  id="username" value="" placeholder="Enter User Name to Login"/></label>
-                <label for="field3"><span>Password <span class="required">*</span></span><input type="password" class="form-control" id="password" value="" placeholder="Enter Password to Login" required/></label>
-                <label for="field4"><span>Path<span class="required">*</span></span><input type="text" class="form-control"  id="path" value="" placeholder="Enter relative path to the Data"/></label>
+                <label for="field1"><span>Server Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="servername" value="" placeholder="Enter Server Name Where Data Lies" required/></label>
+                <label for="field2"><span>User Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="username" value="" placeholder="Enter User Name to Login"/></label>
+                <label for="field3"><span>Password <span class="required">*</span></span><input type="password" class="form-control mandate" id="password" value="" placeholder="Enter Password to Login" required/></label>
+                <label for="field4"><span>Path<span class="required">*</span></span><input type="text" class="form-control mandate"  id="path" value="" title="Enter root folder of the directory" placeholder="Enter relative path to the Data"/></label>
                 <label>
-                    <input type="button" class="btn btn-lg btn-s btn-block" value="Back" onclick="$('#content').load('./pages/details.html');"/>
-                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Save" onclick="saveServerDetails('POST');"/>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="$('#content').load('./pages/details.html');"/>
+                 </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="saveServerDetails('POST');"/>
                 </label>
             </form>
         </div>
