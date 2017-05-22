@@ -517,7 +517,8 @@ and open the template in the editor.
                     $('#Kind').val('');
                     $('#Authors').val('');
                     $('#Title').val('');
-                    $('#Journal').val('');
+                    $('#JournalFull').val('');
+                    $('#JournalAbbr').val('');
                     $('#Volume').val('');
                     $('#Page').val('');
                     $('#Year').val('');
@@ -1327,7 +1328,8 @@ and open the template in the editor.
                             $('#Kind').val(data.referencedetails.desc.kind);
                             $('#Authors').val(data.referencedetails.desc.authors);
                             $('#Title').val(data.referencedetails.desc.title);
-                            $('#Journal').val(data.referencedetails.desc.journal);
+                            $('#JournalFull').val(data.referencedetails.desc.journal.fullName);
+                            $('#JournalAbbr').val(data.referencedetails.desc.journal.abbrevName);
                             $('#Volume').val(data.referencedetails.desc.volume);
                             $('#Page').val(data.referencedetails.desc.page);
                             $('#Year').val(data.referencedetails.desc.year);
@@ -1484,7 +1486,9 @@ and open the template in the editor.
                             <br/>
                             <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control textstatic"  id="infoNotebookfile" value="" title="Check elements from tree you want to add to this text box" placeholder="Enter Main Notebook File Name"/></label>
                             <br/>
-                            <label for="field7"><span>Extra Fields</span></label>
+                            <label for="field7"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="InfoSaveas" value="" title="Save Info As (Unique for every Info)" placeholder="Save Info As" required/></label>
+                            <br/>
+                            <label for="field8"><span>Extra Fields</span></label>
                             <div id="extraInfoFields">
 
                             </div> 
@@ -1550,6 +1554,7 @@ and open the template in the editor.
                                 <label for="field4"><span>Version<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="Version" value="" placeholder="Enter Version for Software Tools"/></label>
                                 <br/>
                                 <label for="field5"><span>URLs</span><input type="text" class="form-control textstatic"  id="ToolsUrls" value="" placeholder="Enter Urls for Software Tools" required/></label>
+                            <br/>
                             </div>
                             <br/>
                             <div id="Experiment">
@@ -1560,7 +1565,8 @@ and open the template in the editor.
                                 <label for="field8"><span>URLs</span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsEUrls" value="" placeholder="Enter Urls for Experiment Tools" required/></label>
                                 <br/>
                             </div>
-                            <label for="field9"><span>Extra Fields</span></label>
+                            <label for="field9"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsSaveas" value="" title="Save Tools Save As (Unique for every Tools)" placeholder="Save Tools As" required/></label>
+                            <label for="field10"><span>Extra Fields</span></label>
                             <div id="extraToolsFields">
 
                             </div> 
@@ -1575,40 +1581,91 @@ and open the template in the editor.
                 </div>
                 <div id="Datasets" class="formelements">
                     <div class="form-style-2-heading">Add New Datasets</div>
-                    <label id="toolsList">
+                    <label id="datasetsList">
                     </label>
                     <form>
                         <div class="form-group">
-                            <label for="field1"><span>Kind<span class="required">*</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
-                                <input type="radio" name="ToolsRadio" value="Software"> Software <input type="radio" name="ToolsRadio" value="Experiment"> Experiment</label>
+                            <label for="field1"><span>Files<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="DatasetsFiles" value="" placeholder="Enter Files for Datasets"/></label>
                             <br/>
-                            <div id="Software">
-                                <label for="field2"><span>Package Name<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="PackageName" value="" placeholder="Enter Package Name for Software Tools"/></label>
-                                <br/>
-                                <label for="field3"><span>Program Name<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="ProgramName" value="" placeholder="Enter Program Name for Software Tools" required/></label>
-                                <br/>
-                                <label for="field4"><span>Version<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="Version" value="" placeholder="Enter Version for Software Tools"/></label>
-                                <br/>
-                                <label for="field5"><span>URLs</span><input type="text" class="form-control textstatic"  id="ToolsUrls" value="" placeholder="Enter Urls for Software Tools" required/></label>
-                            </div>
+                            <label for="field2"><span>Description<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="DatasetsDescription" value="" placeholder="Enter Description For Datasets" required/></label>
                             <br/>
-                            <div id="Experiment">
-                                <label for="field6"><span>Facility Name<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="FacilityName" value="" placeholder="Enter Facility Name for Experiment Tools"/></label>
-                                <br/>
-                                <label for="field7"><span>Measurement<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Measurement" value="" placeholder="Enter Measurement for Experiment Tools" required/></label>
-                                <br/>
-                                <label for="field8"><span>URLs</span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsEUrls" value="" placeholder="Enter Urls for Experiment Tools" required/></label>
-                                <br/>
-                            </div>
-                            <label for="field9"><span>Extra Fields</span></label>
-                            <div id="extraToolsFields">
+                            <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="DatasetsUrls" value="" placeholder="Enter Urls for Datasets"/></label>
+                            <br/>
+                            <label for="field4"><span>Extra Fields</span></label>
+                            <div id="extraDatasetsFields">
 
                             </div> 
                             <label for="buttons">
-                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveTools('POST', 'None');"/>
-                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Tools');"/>
-                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Tools');"/>
-                                <input type="button" id="DeleteChart" class="btn btn-lg btn-primary" value="Delete Tools"/>
+                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveDatasets('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Datasets');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Datasets');"/>
+                                <input type="button" id="DeleteDatasets" class="btn btn-lg btn-primary" value="Delete Datasets"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                 <div id="Scripts" class="formelements">
+                    <div class="form-style-2-heading">Add New Scripts</div>
+                    <label id="scriptsList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Files<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="ScriptsFiles" value="" placeholder="Enter Files for Scripts"/></label>
+                            <br/>
+                            <label for="field2"><span>Description<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="ScriptsDescription" value="" placeholder="Enter Description For Scripts" required/></label>
+                            <br/>
+                            <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="ScriptsUrls" value="" placeholder="Enter Urls for Scripts"/></label>
+                            <br/>
+                            <label for="field4"><span>Extra Fields</span></label>
+                            <div id="extraScriptsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveScripts('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Scripts');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Scripts');"/>
+                                <input type="button" id="DeleteScripts" class="btn btn-lg btn-primary" value="Delete Scripts"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Reference" class="formelements">
+                    <div class="form-style-2-heading">Add New Reference</div>
+                    <label id="referenceList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Kind<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Kind" value="" placeholder="Enter Kind for Reference"/></label>
+                            <br/>
+                            <label for="field2"><span>Authors<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Authors" value="" placeholder="Enter Authors For Reference"/></label>
+                            <br/>
+                            <label for="field3"><span>Title<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Title" value="" placeholder="Enter Title for Reference"/></label>
+                            <br/>
+                            <label for="field4"><span>Journal Full<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="JournalFull" value="" placeholder="Enter Full Journal Name For Reference"/></label>
+                            <br/>
+                            <label for="field5"><span>Journal Abbr<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="JournalAbbr" value="" placeholder="Enter Journal Abbr For Reference"/></label>
+                            <br/>
+                            <label for="field6"><span>Volume<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Volume" value="" placeholder="Enter Volume of Journal For Reference"/></label>
+                            <br/>
+                            <label for="field7"><span>Page<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Page" value="" placeholder="Enter Page For Reference"/></label>
+                            <br/>
+                            <label for="field8"><span>Year<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Year" value="" placeholder="Enter Year For Reference"/></label>
+                            <br/>
+                            <label for="field9"><span>DOI</span><input type="text" class="form-control disabler textstatic"  id="DOI" value="" placeholder="Enter DOI For Reference"/></label>
+                            <br/>
+                            <label for="field10"><span>Abstract</span><input type="text" class="form-control disabler textstatic"  id="Abstract" value="" placeholder="Enter Abstract For Reference"/></label>
+                            <br/>
+                            <label for="field11"><span>URLs</span><input type="text" class="form-control textstatic"  id="referenceUrls" value="" placeholder="Enter Reference Urls"/></label>
+                            <br/>
+                            <label for="field12"><span>Extra Fields</span></label>
+                            <div id="extraScriptsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveScripts('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Scripts');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Scripts');"/>
+                                <input type="button" id="DeleteScripts" class="btn btn-lg btn-primary" value="Delete Scripts"/>
                             </label>
                         </div>
                     </form>
