@@ -604,6 +604,104 @@ class Script(Descriptor) :
           self.desc["extras"][field].append( value )
        else :
           print("Cannot add field and value, you must provide field and value as string.")
+		  
+		  
+##########
+# Info #
+##########
+
+class Info(Descriptor) :
+    #
+    # constructor
+    #
+    def __init__(self):
+       Descriptor.__init__(self,["pifname","pilname","collections","tags"],["mainnotebookfile","extras"])
+    #
+    # add first Name for PI
+    #
+    def addPiFirstName(self, pifname) :
+       if not "pifname" in self.desc :
+          self.desc["pifname"] = []
+          self.desc["pifname"].append( pifname )
+       else :
+          print("Cannot add pifname, you must provide pifname as string.")
+	   
+		  
+	#
+    # add Middle Name for PI
+    #
+    def addPiMiddleName(self, pimname) :
+       if not "pimname" in self.desc :
+          self.desc["pimname"] = []
+          self.desc["pimname"].append( pimname )
+       else :
+          print("Cannot add pimname, you must provide pimname as string.")
+	
+	#
+    # add Last Name for PI
+    #
+    def addPiLastName(self, pilname) :
+       if not "pilname" in self.desc :
+          self.desc["pilname"] = []
+          self.desc["pilname"].append( pilname )
+       else :
+          print("Cannot add pilname, you must provide pilname as string.")
+		  
+		  
+	
+    #
+    # add Collection
+    #
+    def addCollection(self, collection) :
+       if not "collections" in self.desc :
+          self.desc["collections"] = []
+          self.desc["collections"].append( collection )
+       else :
+          sys.exit("Error: collection must be <str>.")
+    
+	#
+    # add Collection
+    #
+    def addTag(self, tag) :
+       Descriptor.addTag(self,tag)
+	   
+	#
+    # add notebookFile
+    #
+    def addNotebookFile(self, notebookFile) :
+       if ( isinstance(notebookFile,str)):
+          self.desc["info"] = {}
+          self.desc["info"]["notebookFile"] =  notebookFile
+       else :
+          print("Cannot add notebookFile, you must provide notebookFile as string.")
+		  
+	#
+    # add globus id
+    #
+    def addGlobusId(self, globusid) :
+       if( isinstance(globusid, str) ) :
+          self.desc["globusid"] = globusid
+       else :
+          print("Cannot add globus, you must provide globus as string.")
+    
+	#
+    # add Saveas
+    #
+    def addSaveAs(self, saveas) :
+       self.desc["saveas"] = saveas
+	
+	#
+    # add Extra
+    #
+    def addExtra(self, field, value ) :
+       if not "extras" in self.desc :
+          self.desc["extras"] = {}
+       if( isinstance(field, str) and isinstance(value, str) ) :
+          if not field in self.desc["extras"] :
+             self.desc["extras"][field] = []
+          self.desc["extras"][field].append( value )
+       else :
+          print("Cannot add field and value, you must provide field and value as string.")
 
 ########
 # Head #

@@ -166,22 +166,38 @@ and open the template in the editor.
                     }
                 });
             });
-//            $("#CImagefiles").focusin(function () {
-//                $('#tree').removeClass('disabled');
-//                var values = []
-//                $("#tree").fancytree("getTree").visit(function (node) {
-//                    if (node.selected) {
-//                        if (node.folder != "true") {
-//                            var keypath = node.key;
-//                            var projName = $('#projName').val();
-//                            var path = keypath.substring(keypath.indexOf(projName));
-//                            values.push(path);
-//                            var copiedcontent = values.slice();
-//                            $("#CImagefiles").val(copiedcontent);
-//                        }
-//                    }
-//                });
-//            });
+            $("#DatasetsFiles").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#DatasetsFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#ScriptsFiles").focusin(function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#ScriptsFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
 
 
 
@@ -205,15 +221,15 @@ and open the template in the editor.
             function addNewFields(itemName) {
                 if (itemName == 'Info') {
                     var div = $('#extraInfoFields');
-                    div.append('<label id="InfoExtra" for="field7"><span><input type="text" class="form-control textstatic"  title="Add Label For New Info Field" placeholder="Add Label For New Info Field" id="infolabel" value=""</span><input type="text" class="form-control textstatic" title="Add Value For New Info Field" placeholder="Add Value For New Info Field" id="infovalue" value=""/></label>')
+                    div.append('<label id="InfoExtra" for="field7"><span><input type="text" class="form-control textstatic infolabel"  title="Add Label For New Info Field" placeholder="Add Label For New Info Field" id="infolabel" value=""</span><input type="text" class="form-control textstatic infoval" title="Add Value For New Info Field" placeholder="Add Value For New Info Field" id="infovalue" value=""/></label>')
                 }
                 if (itemName == 'Charts') {
                     var div = $('#extraChartsFields');
-                    div.append('<label id="ChartsExtra" for="field10"><span><input type="text" class="form-control textstatic chartlabel"  title="Add Label For New Chart Field" placeholder="Add Label For New Chart Field" id="chartlabel" value=""</span><input type="text" class="form-control textstatic chartval" title="Add Value For New Info Field" placeholder="Add Value For New Chart Field" id="chartvalue" value=""/></label>')
+                    div.append('<label id="ChartsExtra" for="field10"><span><input type="text" class="form-control textstatic chartlabel"  title="Add Label For New Chart Field" placeholder="Add Label For New Chart Field" id="chartlabel" value=""</span><input type="text" class="form-control textstatic chartval" title="Add Value For New Info Field" placeholder="Add Value For New Chart Field chartvalue" id="chartvalue" value=""/></label>')
                 }
                 if (itemName == 'Tools') {
                     var div = $('#extraToolsFields');
-                    div.append('<label id="ToolsExtra" for="field10"><span><input type="text" class="form-control textstatic toolslabel"  title="Add Label For New Tools Field" placeholder="Add Label For New Tools Field" id="toolslabel" value=""</span><input type="text" class="form-control textstatic toolsval" title="Add Value For New Tools Field" placeholder="Add Value For New Tools Field" id="toolsvalue" value=""/></label>')
+                    div.append('<label id="ToolsExtra" for="field10"><span><input type="text" class="form-control textstatic toolslabel"  title="Add Label For New Tools Field" placeholder="Add Label For New Tools Field" id="toolslabel" value=""</span><input type="text" class="form-control textstatic toolsval" title="Add Value For New Tools Field" placeholder="Add Value For New Tools Field" id="chartvalue" value=""/></label>')
                 }
                 if (itemName == 'Datasets') {
                     var div = $('#extraDatasetsFields');
@@ -264,35 +280,44 @@ and open the template in the editor.
 
             function saveInfo(type, saveas) {
                 var type = type;
-                $(".piFirstName").each(function () {
-                    var firstname = $(this).val();
-                    if (firstname.toString() != "") {
-                        fnamelist.push(firstname);
-                    }
-                });
-                $(".piMiddleName").each(function () {
-                    var mname = $(this).val();
-                    if (mname.toString() != "") {
-                        mnamelist.push(mname);
-                    }
-                });
-                $(".piLastName").each(function () {
-                    var lname = $(this).val();
-                    if (lname.toString() != "") {
-                        lnamelist.push(lname);
-                    }
-                });
-                var Collections = $('#Collections').val();
-                var Tags = $('#Tags').val();
-                var InfoNotebookfile = $('#InfoNotebookfile').val();
-                var globusid = $('#globusID').val();
+                var Collections = "";
+                var Tags = "";
+                var InfoNotebookfile = "";
+                var globusid = "";
                 var lablist = [];
                 var vallist = [];
+                if (type !== "INIT") {
+                    $(".pifname").each(function () {
+                        alert("here");
+                        var firstname = $(this).val();
+                        if (firstname.toString() != "") {
+                            fnamelist.push(firstname);
+                        }
+                    });
+                    $(".pimname").each(function () {
+                        var mname = $(this).val();
+                        if (mname.toString() != "") {
+                            mnamelist.push(mname);
+                        }
+                    });
+                    $(".pilname").each(function () {
+                        var lname = $(this).val();
+                        if (lname.toString() != "") {
+                            lnamelist.push(lname);
+                        }
+                    });
+                    Collections = $('#collections').val();
+                    Tags = $('#tags').val();
+                    InfoNotebookfile = $('#infonotebookfile').val();
+                    globusid = $('#globusid').val();
+                    lablist = [];
+                    vallist = [];
+                }
                 var InfoSaveas = "";
                 if (type == 'POST') {
                     InfoSaveas = $('#InfoSaveas').val();
                 } else {
-                    InfoSaveas = InfoSaveas;
+                    InfoSaveas = saveas;
                 }
                 var infolist = [];
                 infolist.push(type);
@@ -367,7 +392,7 @@ and open the template in the editor.
                                 var b = document.createElement('button');
                                 b.setAttribute('class', 'btn btn-lg btn-primary deletable');
                                 b.setAttribute('value', InfoSaveas);
-                                b.setAttribute('onclick', 'saveCharts("GET","' + InfoSaveas.toString() + '");');
+                                b.setAttribute('onclick', 'saveInfo("GET","' + InfoSaveas.toString() + '");');
                                 b.innerHTML = InfoSaveas.toString();
                                 navlist.append(b);
                                 infoSaveList.push(InfoSaveas);
@@ -377,9 +402,25 @@ and open the template in the editor.
                             reset('Info');
                         }
                         if (type == "GET") {
-                            $('#Collections').val(data.infoDetails.desc.collections);
-                            $('#Tags').val(data.infoDetails.desc.tags);
-                            $('#InfoNotebookfile').val(data.infoDetails.desc.notebookFile);
+                            var i = 0
+                            $(".pifname").each(function () {
+                                $(this).val(data.infoDetails.desc.fname[i]);
+                                i++;
+                            });
+                            var j = 0;
+                            $(".pimname").each(function () {
+                                $(this).val(data.infoDetails.desc.mname[j]);
+                                j++;
+                            });
+                            var k = 0;
+                            $(".pilname").each(function () {
+                                $(this).val(data.infoDetails.desc.lname[k]);
+                                k++;
+                            });
+                            $('#collections').val(data.infoDetails.desc.collections);
+                            $('#tags').val(data.infoDetails.desc.tags);
+                            $('#infonotebookfile').val(data.infoDetails.desc.notebookFile);
+                            $('#globusid').val(data.infoDetails.desc.globusid);
                             $('#InfoSaveas').val(data.infoDetails.desc.saveas);
                             $(".infolabel").each(function () {
                                 $(this).val(data.infoDetails.desc.extras);
@@ -432,19 +473,20 @@ and open the template in the editor.
 
             function reset(inp) {
                 if (inp == 'Info') {
-                    $(".piFirstName").each(function () {
+                    $(".pifname").each(function () {
                         $(this).val('');
                     });
-                    $(".piMiddleName").each(function () {
+                    $(".pimname").each(function () {
                         $(this).val('');
                     });
-                    $(".piLastName").each(function () {
+                    $(".pilname").each(function () {
                         $(this).val('');
                     });
-                    $('#Collections').val('');
-                    $('#Tags').val('');
-                    $('#InfoNotebookfile').val('');
+                    $('#collections').val('');
+                    $('#tags').val('');
+                    $('#infonotebookfile').val('');
                     $('#InfoSaveas').val('');
+                    $('#globusid').val('');
                     $(".infolabel").each(function () {
                         $(this).val('');
                     });
@@ -568,7 +610,7 @@ and open the template in the editor.
                 var Csaveas = "";
                 var lablist = [];
                 var vallist = [];
-                if (type == 'POST') {
+                if (type === 'POST') {
                     Csaveas = $('#CSaveas').val();
                 } else {
                     Csaveas = saveas;
@@ -1472,19 +1514,23 @@ and open the template in the editor.
             <div style="margin-top: 20px;">
                 <div id="Info" class="formelements">
                     <div class="form-style-2-heading">Add New Info</div>
+                    <label id="infoList">
+                    </label>
                     <form>
                         <div class="form-group">
-                            <label for="field1"><span>First Name of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="pifname" value="" placeholder="Enter First Name of PI" required/></label>
+                            <label for="field1"><span>First Name of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic pifname"  id="pifname" value="" placeholder="Enter First Name of PI" required/></label>
                             <br/>
-                            <label for="field2"><span>Middle Name  of PI</span><input type="text" class="form-control disabler textstatic"  id="pimname" value="" placeholder="Enter Middle Name of PI"/></label>
+                            <label for="field2"><span>Middle Name  of PI</span><input type="text" class="form-control disabler textstatic pimname"  id="pimname" value="" placeholder="Enter Middle Name of PI"/></label>
                             <br/>
-                            <label for="field3"><span>Last Name  of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="pilname" value="" placeholder="Enter Last Name of PI"/></label>
+                            <label for="field3"><span>Last Name  of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic pilname"  id="pilname" value="" placeholder="Enter Last Name of PI"/></label>
                             <br/>
-                            <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="collection" value="" placeholder="Enter Collection to which Project belongs"/></label>
+                            <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="collections" value="" placeholder="Enter Collection to which Project belongs"/></label>
                             <br/>
                             <label for="field5"><span>Tags<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="tags" value="" placeholder="Enter Tags for the project"/></label>
                             <br/>
-                            <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control textstatic"  id="infoNotebookfile" value="" title="Check elements from tree you want to add to this text box" placeholder="Enter Main Notebook File Name"/></label>
+                            <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control textstatic"  id="infonotebookfile" value="" title="Check elements from tree you want to add to this text box" placeholder="Enter Main Notebook File Name"/></label>
+                            <br/>
+                            <label for="field6"><span>Globus Id</span><input type="text" class="form-control textstatic"  id="globusid" value="" placeholder="Enter Globus Id"/></label>
                             <br/>
                             <label for="field7"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="InfoSaveas" value="" title="Save Info As (Unique for every Info)" placeholder="Save Info As" required/></label>
                             <br/>
@@ -1554,7 +1600,7 @@ and open the template in the editor.
                                 <label for="field4"><span>Version<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="Version" value="" placeholder="Enter Version for Software Tools"/></label>
                                 <br/>
                                 <label for="field5"><span>URLs</span><input type="text" class="form-control textstatic"  id="ToolsUrls" value="" placeholder="Enter Urls for Software Tools" required/></label>
-                            <br/>
+                                <br/>
                             </div>
                             <br/>
                             <div id="Experiment">
@@ -1565,7 +1611,7 @@ and open the template in the editor.
                                 <label for="field8"><span>URLs</span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsEUrls" value="" placeholder="Enter Urls for Experiment Tools" required/></label>
                                 <br/>
                             </div>
-                            <label for="field9"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsSaveas" value="" title="Save Tools Save As (Unique for every Tools)" placeholder="Save Tools As" required/></label>
+                            <label for="field9"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Toolssaveas" value="" title="Save Tools Save As (Unique for every Tools)" placeholder="Save Tools As" required/></label>
                             <label for="field10"><span>Extra Fields</span></label>
                             <div id="extraToolsFields">
 
@@ -1591,7 +1637,8 @@ and open the template in the editor.
                             <br/>
                             <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="DatasetsUrls" value="" placeholder="Enter Urls for Datasets"/></label>
                             <br/>
-                            <label for="field4"><span>Extra Fields</span></label>
+                            <label for="field4"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Datasetssaveas" value="" title="Save Datasets Save As (Unique for every Dataset)" placeholder="Save Dataset As" required/></label>
+                            <label for="field5"><span>Extra Fields</span></label>
                             <div id="extraDatasetsFields">
 
                             </div> 
@@ -1604,7 +1651,7 @@ and open the template in the editor.
                         </div>
                     </form>
                 </div>
-                 <div id="Scripts" class="formelements">
+                <div id="Scripts" class="formelements">
                     <div class="form-style-2-heading">Add New Scripts</div>
                     <label id="scriptsList">
                     </label>
@@ -1616,6 +1663,7 @@ and open the template in the editor.
                             <br/>
                             <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="ScriptsUrls" value="" placeholder="Enter Urls for Scripts"/></label>
                             <br/>
+                            <label for="field4"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Scriptssaveas" value="" title="Save Scripts As (Unique for every Script)" placeholder="Save Script As" required/></label>
                             <label for="field4"><span>Extra Fields</span></label>
                             <div id="extraScriptsFields">
 
@@ -1657,15 +1705,17 @@ and open the template in the editor.
                             <br/>
                             <label for="field11"><span>URLs</span><input type="text" class="form-control textstatic"  id="referenceUrls" value="" placeholder="Enter Reference Urls"/></label>
                             <br/>
-                            <label for="field12"><span>Extra Fields</span></label>
-                            <div id="extraScriptsFields">
+                            <label for="field12"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandate"  id="Referencesaveas" value="" title="Save Reference As (Unique for every Reference)" placeholder="Save Reference As" required/></label>
+                            <br/>
+                            <label for="field13"><span>Extra Fields</span></label>
+                            <div id="extraReferenceFields">
 
                             </div> 
                             <label for="buttons">
-                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveScripts('POST', 'None');"/>
-                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Scripts');"/>
-                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Scripts');"/>
-                                <input type="button" id="DeleteScripts" class="btn btn-lg btn-primary" value="Delete Scripts"/>
+                                <input type="button" class="btn btn-lg btn-primary" id="Save" value="Save" onclick="saveReference('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Reference');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Reference');"/>
+                                <input type="button" id="DeleteReference" class="btn btn-lg btn-primary" value="Delete Reference"/>
                             </label>
                         </div>
                     </form>
