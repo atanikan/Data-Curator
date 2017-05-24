@@ -45,17 +45,21 @@ and open the template in the editor.
                             $("#projectid").addClass("is-active");
                             $("#content").load("./pages/project.html");
                         } else {
-                                $("#servername").val(data.serverDetails.desc.serverName);
-                                $("#username").val(data.serverDetails.desc.Username);
-                                $("#password").val(data.serverDetails.desc.Password);
-                                $("#path").val(data.serverDetails.desc.Path);
+                            $("#servername").val(data.serverDetails.desc.serverName);
+                            $("#username").val(data.serverDetails.desc.Username);
+                            $("#password").val(data.serverDetails.desc.Password);
+                            $("#path").val(data.serverDetails.desc.Path);
                         }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var diverror = $('#errors');
+                        diverror.append("<div class='form-style-2 centrist'> <font color='red'>"+jqXHR+" "+textStatus+" "+errorThrown +"</font></div>")
                     }
                 });
             }
-            
-            
-            
+
+
+
             (function () {
                 $('.mandate').focusin(function () {
 
@@ -73,12 +77,12 @@ and open the template in the editor.
                     }
                 });
             })()
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
         </script>
 
 
@@ -113,7 +117,7 @@ and open the template in the editor.
                 <label for="field4"><span>Path<span class="required">*</span></span><input type="text" class="form-control mandate"  id="path" value="" title="Enter root folder of the directory" placeholder="Enter relative path to the Data"/></label>
                 <label>
                     <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="$('#content').load('./pages/details.html');"/>
-                 </label>
+                </label>
                 <label>
                     <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="saveServerDetails('POST');"/>
                 </label>

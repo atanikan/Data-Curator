@@ -670,8 +670,7 @@ class Info(Descriptor) :
     #
     def addNotebookFile(self, notebookFile) :
        if ( isinstance(notebookFile,str)):
-          self.desc["info"] = {}
-          self.desc["info"]["notebookFile"] =  notebookFile
+          self.desc["info"] =  notebookFile
        else :
           print("Cannot add notebookFile, you must provide notebookFile as string.")
 		  
@@ -693,15 +692,17 @@ class Info(Descriptor) :
 	#
     # add Extra
     #
-    def addExtra(self, field, value ) :
-       if not "extras" in self.desc :
-          self.desc["extras"] = {}
-       if( isinstance(field, str) and isinstance(value, str) ) :
-          if not field in self.desc["extras"] :
-             self.desc["extras"][field] = []
-          self.desc["extras"][field].append( value )
-       else :
-          print("Cannot add field and value, you must provide field and value as string.")
+	#
+    # add Collection
+    #
+    def addExtra(self, field, value) :
+       if not "extrasfield" in self.desc :
+          self.desc["extrasfield"] = []
+          self.desc["extrasfield"].append( field )
+       if not "extrasvalue" in self.desc :
+          self.desc["extrasvalue"] = []
+          self.desc["extrasvalue"].append( value )
+    
 
 ########
 # Head #

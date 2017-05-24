@@ -98,11 +98,8 @@ and open the template in the editor.
                 });
                 return false;
             });
-
-
-
             //copy from tree
-            $("#infoNotebookfile").focusin(function () {
+            $("#infonotebookfile").focusin(function () {
                 $('#tree').removeClass('disabled');
                 var values = []
                 $("#tree").fancytree("getTree").visit(function (node) {
@@ -113,7 +110,7 @@ and open the template in the editor.
                             var path = keypath.substring(keypath.indexOf(projName));
                             values.push(path);
                             var copiedcontent = values.slice();
-                            $("#infoNotebookfile").val(copiedcontent);
+                            $("#infonotebookfile").val(copiedcontent);
                         }
                     }
                 });
@@ -198,25 +195,12 @@ and open the template in the editor.
                     }
                 });
             });
-
-
-
-
-
-
-
-
-
-
-
             $(".disabler").focusin(function () {
                 $('#tree').fancytree('getTree').visit(function (node) {
                     node.setSelected(false);
                 });
                 $('#tree').addClass('disabled');
             });
-
-
             //add new fields
             function addNewFields(itemName) {
                 if (itemName == 'Info') {
@@ -273,22 +257,34 @@ and open the template in the editor.
                 }
             });
 
-            var infoSaveList = [];
-            var fnamelist = [];
-            var mnamelist = [];
-            var lnamelist = [];
+            function addField(elemid) {
+                var addfield = $('#' + elemid.toString());
+                if (elemid === 'pifield1') {
+                    addfield.append('<input type="text" class="form-control disabler textstatic pifname"  id="pifname" value="" placeholder="Enter First Name of PI" required/>');
+                }
+                if (elemid === 'pifield2') {
+                    addfield.append('<input type ="text" class="form-control disabler textstatic pimname" id = "pimname" value="" placeholder="Enter Middle Name of PI"/></label>');
+                }
+                if (elemid === 'pifield3') {
+                    addfield.append('<input type="text" class="form-control disabler textstatic pilname"  id="pilname" value="" placeholder="Enter Last Name of PI"/> </label>');
+                }
+            }
 
+
+            var infoSaveList = [];
             function saveInfo(type, saveas) {
                 var type = type;
                 var Collections = "";
                 var Tags = "";
-                var InfoNotebookfile = "";
+                var infonotebookfile = "";
                 var globusid = "";
                 var lablist = [];
                 var vallist = [];
+                var fnamelist = [];
+                var mnamelist = [];
+                var lnamelist = [];
                 if (type !== "INIT") {
                     $(".pifname").each(function () {
-                        alert("here");
                         var firstname = $(this).val();
                         if (firstname.toString() != "") {
                             fnamelist.push(firstname);
@@ -308,7 +304,7 @@ and open the template in the editor.
                     });
                     Collections = $('#collections').val();
                     Tags = $('#tags').val();
-                    InfoNotebookfile = $('#infonotebookfile').val();
+                    infonotebookfile = $('#infonotebookfile').val();
                     globusid = $('#globusid').val();
                     lablist = [];
                     vallist = [];
@@ -338,8 +334,13 @@ and open the template in the editor.
                     infolist.push(Collections);
                 if (Tags.toString() != "")
                     infolist.push(Tags);
-                if (InfoNotebookfile.toString() != "")
-                    infolist.push(InfoNotebookfile);
+                if (infonotebookfile.toString() != "") {
+                    infolist.push(infonotebookfile);
+                }
+                else {
+                    infonotebookfile = "N/A";
+                    infolist.push(infonotebookfile);
+                }
                 if (globusid.toString() != "")
                     infolist.push(globusid);
                 $(".infolabel").each(function () {
@@ -374,19 +375,22 @@ and open the template in the editor.
                     data: JSON.stringify(infolist),
                     success: function (data) {
                         console.log(data);
-                        if (type == "INIT" && data.infoList.length > 0) {
+                        if (type === "INIT" && data.infoList.length > 0) {
                             for (var i = 0; i < data.infoList.length; i++) {
-                                var navlist = $('#infoList');
-                                var b = document.createElement('button');
-                                b.setAttribute('class', 'btn btn-lg btn-primary deletable');
-                                b.setAttribute('value', data.infoList[i]);
-                                b.setAttribute('onclick', 'saveInfo("GET","' + data.infoList[i] + '");');
-                                b.innerHTML = data.infoList[i];
-                                navlist.append(b);
-                                infoSaveList.push(data.infoList[i]);
+                                if (infoSaveList.indexOf(data.infoList[i]) < 0) {
+                                    var navlist = $('#infoList');
+                                    var b = document.createElement('button');
+                                    b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                    b.setAttribute('value', data.infoList[i]);
+                                    b.setAttribute('onclick', 'saveInfo("GET","' + data.infoList[i] + '");');
+                                    b.innerHTML = data.infoList[i];
+                                    navlist.append(b);
+                                    infoSaveList.push(data.infoList[i]);
+                                }
                             }
+                            reset('Info');
                         }
-                        if (type == "POST") {
+                        if (type === "POST") {
                             if (infoSaveList.indexOf(InfoSaveas) < 0) {
                                 var navlist = $('#infoList');
                                 var b = document.createElement('button');
@@ -396,40 +400,38 @@ and open the template in the editor.
                                 b.innerHTML = InfoSaveas.toString();
                                 navlist.append(b);
                                 infoSaveList.push(InfoSaveas);
-                            } else {
-                                saveInfo("GET", InfoSaveas.toString());
                             }
                             reset('Info');
                         }
                         if (type == "GET") {
-                            var i = 0
-                            $(".pifname").each(function () {
-                                $(this).val(data.infoDetails.desc.fname[i]);
-                                i++;
+                            $(".pifname").each(function (index, value) {
+                                var res = data.infoDetails.desc.pifname[index].toString();
+                                console.log(res.length);
+                                var fres = res.substr(2, res.length - 4);
+                                $(this).val(fres);
                             });
-                            var j = 0;
-                            $(".pimname").each(function () {
-                                $(this).val(data.infoDetails.desc.mname[j]);
-                                j++;
+                            $(".pimname").each(function (index, value) {
+                                var res = data.infoDetails.desc.pimname[index].toString();
+                                var mres = res.substr(2, res.length - 4);
+                                $(this).val(mres);
                             });
-                            var k = 0;
-                            $(".pilname").each(function () {
-                                $(this).val(data.infoDetails.desc.lname[k]);
-                                k++;
+                            $(".pilname").each(function (index, value) {
+                                var res = data.infoDetails.desc.pilname[index].toString();
+                                var lres = res.substr(2, res.length - 4);
+                                $(this).val(lres);
                             });
                             $('#collections').val(data.infoDetails.desc.collections);
                             $('#tags').val(data.infoDetails.desc.tags);
-                            $('#infonotebookfile').val(data.infoDetails.desc.notebookFile);
+                            $('#infonotebookfile').val(data.infoDetails.desc.info);
                             $('#globusid').val(data.infoDetails.desc.globusid);
                             $('#InfoSaveas').val(data.infoDetails.desc.saveas);
-                            $(".infolabel").each(function () {
-                                $(this).val(data.infoDetails.desc.extras);
+                            $(".infolabel").each(function (index, value) {
+                                $(this).val(data.infoDetails.desc.extrasfield[index]);
                             });
-                            $(".infoval").each(function () {
-                                $(this).val(data.infoDetails.desc.extras);
+                            $(".infoval").each(function (index, value) {
+                                $(this).val(data.infoDetails.desc.extrasvalue[index]);
                             });
                             infolist.push(lablist);
-
                             if (data.infoDetails.desc.saveas != "") {
                                 $('#DeleteInfo').show();
                             } else {
@@ -1483,8 +1485,7 @@ and open the template in the editor.
                         $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
                     }
                 });
-            });
-        </script>
+            });</script>
     </head>
     <body>
         <div id="tree" style="width: 40%; float: left;">
@@ -1518,11 +1519,11 @@ and open the template in the editor.
                     </label>
                     <form>
                         <div class="form-group">
-                            <label for="field1"><span>First Name of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic pifname"  id="pifname" value="" placeholder="Enter First Name of PI" required/></label>
+                            <label id="pifield1" for="field1"><span>First Name of PI<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield1');"></a></span><input type="text" class="form-control disabler textstatic pifname"  id="pifname" value="" placeholder="Enter First Name of PI" required/></label>
                             <br/>
-                            <label for="field2"><span>Middle Name  of PI</span><input type="text" class="form-control disabler textstatic pimname"  id="pimname" value="" placeholder="Enter Middle Name of PI"/></label>
+                            <label id="pifield2" for="field2"><span>Middle Name  of PI<a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield2');"></a></span><input type="text" class="form-control disabler textstatic pimname"  id="pimname" value="" placeholder="Enter Middle Name of PI"/></label>
                             <br/>
-                            <label for="field3"><span>Last Name  of PI<span class="required">*</span></span><input type="text" class="form-control disabler textstatic pilname"  id="pilname" value="" placeholder="Enter Last Name of PI"/></label>
+                            <label id="pifield3" for="field3"><span>Last Name  of PI<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield3');"></a></span><input type="text" class="form-control disabler textstatic pilname"  id="pilname" value="" placeholder="Enter Last Name of PI"/></label>
                             <br/>
                             <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control disabler textstatic"  id="collections" value="" placeholder="Enter Collection to which Project belongs"/></label>
                             <br/>

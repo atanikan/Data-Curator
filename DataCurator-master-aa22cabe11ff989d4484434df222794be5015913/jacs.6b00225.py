@@ -253,15 +253,14 @@ def getInfo():
 	pifnamelist = []
 	pimnamelist = []
 	pilnamelist = []
-	infosaveaslist = []
 	info = Info()
 	type = iDetails[0]
 	infosaveas = iDetails[1]
 	print(iDetails)
 	if "INIT" in type:
-		if 'infosaveaslist'+str( pid) in store:
-			for key in eval(str(store.get('infosaveaslist'+str(pid)))[3:len(str(store.get('infosaveaslist'+str(pid))))-2]):
-				infoList.append(key)
+		for key in infoMap:
+			if str(key).split('*')[0] not in infoList:
+				infoList.append(str(key).split('*')[0])
 	if "GET" in type:
 		if str('pifname'+infosaveas+str( pid)) in store and store.get(str('pifname'+infosaveas+str( pid))) is not None:
 			pifnamelist.append(str(store.get(str('pifname'+infosaveas+str( pid))))[2:len(str(store.get(str('pifname'+infosaveas+str( pid)))))-1])
@@ -306,28 +305,22 @@ def getInfo():
 			info.addPiFirstName(pifnamelist)
 			info.addPiMiddleName(pimnamelist)
 			info.addPiLastName(pilnamelist)
-			if str('pifname'+infosaveas+str( pid)) not in store:
-				store.put(str('pifname'+infosaveas+str( pid)), pifnamelist, ttl_secs=14400)
-			if str('pimname'+infosaveas+str( pid)) not in store:
-				store.put(str('pimname'+infosaveas+str( pid)), pimnamelist, ttl_secs=14400)
-			if str('pilname'+infosaveas+str( pid)) not in store:
-				store.put(str('pilname'+infosaveas+str( pid)), pilnamelist, ttl_secs=14400)
+			store.put(str('pifname'+infosaveas+str( pid)), pifnamelist, ttl_secs=14400)
+			store.put(str('pimname'+infosaveas+str( pid)), pimnamelist, ttl_secs=14400)
+			store.put(str('pilname'+infosaveas+str( pid)), pilnamelist, ttl_secs=14400)
 		if collections and not collections.isspace():
 			info.addCollection(collections)
 			#session['pfirstName'] = fname
-			if str('collections'+infosaveas+str( pid)) not in store:
-				store.put(str('collections'+infosaveas+str( pid)), collections, ttl_secs=14400)
+			store.put(str('collections'+infosaveas+str( pid)), collections, ttl_secs=14400)
 		if tags and not tags.isspace():
 			info.addTag(tags)
 			#session['pfirstName'] = fname
-			if str('tags'+infosaveas+str( pid)) not in store:
-				store.put(str('tags'+infosaveas+str( pid)), tags, ttl_secs=14400)
+			store.put(str('tags'+infosaveas+str( pid)), tags, ttl_secs=14400)
 				
 		if mainnotebookfile and not mainnotebookfile.isspace():
 			if "N/A" not in mainnotebookfile:
 				info.addNotebookFile(mainnotebookfile)
-				if str('mainnotebookfile'+infosaveas+str( pid)) not in store:
-					store.put(str('mainnotebookfile'+infosaveas+str( mainnotebookfile)), mainnotebookfile, ttl_secs=14400)
+				store.put(str('mainnotebookfile'+infosaveas+str( pid)), mainnotebookfile, ttl_secs=14400)
 				
 		if globusid and not globusid.isspace():
 			info.addGlobusId(globusid)
@@ -342,16 +335,18 @@ def getInfo():
 					store.put(str('infolabels'+infosaveas+str(pid)), infolabels, ttl_secs=14400)
 					store.put(str('infovalues'+infosaveas+str(pid)), infovalues, ttl_secs=14400)
 		if "N/A" not in infosaveas:
-			infoMap[str(infosaveas) + str(pid)] = info
-			infosaveaslist.append(str(infosaveas))
-			store.put("infosaveaslist"+str(pid),infosaveaslist, ttl_secs=14400)
-	return jsonify({'infodetails':info.__dict__,'infoList':infoList})
+			infoMap[str(infosaveas) +"*"+str(pid)] = info
+			infoList.append(str(infosaveas))
+			info.addSaveAs(infosaveas)
+		print(info)
+		print(infoList)
+	return jsonify({'infoDetails':info.__dict__,'infoList':infoList})
 	
 @app.route('/delInfo',methods=['POST'])
 def delInfo():
 	delsave = request.json
 	infosaveas = str(delsave[0])
-	if infosaveas + str(pid) in infoMap:
+	if infosaveas +"*"+ str(pid) in infoMap:
 		del infoMap[str(infosaveas) + str(pid)]
 	if str('pifname'+infosaveas+str( pid)) in store:
 		store.delete('pifname'+infosaveas+str( pid))
@@ -397,7 +392,7 @@ def getCharts():
 		if "chartsaveaslist" in store:
 			print(store.get('chartsaveaslist'))
 			print(">>",str(store.get('chartsaveaslist'))[2:len(str(store.get('chartsaveaslist')))-1])
-			for key in eval(str(store.get('chartsaveaslist'))[3:len(str(store.get('chartsaveaslist')))-2]):
+			for key in eval(str(store.get('chartsaveaslist'))[2:len(str(store.get('chartsaveaslist')))-1]):
 				print(key)
 				#print(str(key)[1:len(str(key))-1])
 				chartsList.append(key)
@@ -557,7 +552,7 @@ def getTools():
 			toolseurls = str(store.get(str('toolseurls'+toolssaveas+str( pid))))[2:len(str(store.get(str('toolseurls'+toolssaveas+str( pid)))))-1]
 		if str('toolslabels'+toolssaveas+str( pid)) in store and store.get(str('toolslabels'+toolssaveas+str( pid))) is not None:
 			toolslabels.append(str(store.get(str('toolslabels'+toolssaveas+str( pid))))[2:len(str(store.get(str('toolslabels'+toolssaveas+str( pid)))))-1])
-		if str('toolsvalues'+toolssaveas+str( pid)) in store and store.get(str('toolsvalues'+toolssaveas+str( pid))) is not None:
+		if str('toolsvalues'+toolssaveas+str( pid)	) in store and store.get(str('toolsvalues'+toolssaveas+str( pid))) is not None:
 			toolsvalues.append(str(store.get(str('toolsvalues'+toolssaveas+str( pid))))[2:len(str(store.get(str('toolsvalues'+toolssaveas+str( pid)))))-1])
 	if "POST" in type:
 		kind = str(toolsDetails[2])
@@ -659,6 +654,117 @@ def delTools():
 	if str('cproperties'+toolssaveas+str( pid)) in store:
 		store.delete('cproperties'+toolssaveas+str( pid))
 	return jsonify({'deltoolsDetails':toolssaveas})
+	
+	
+@app.route('/getDatasets',methods=['POST'])
+def getDatasets():
+	datasetdetails = request.json
+	datasetfiles = ""
+	datasetdescriptions = ""
+	dataseturls = ""
+	datasetsaveas = ""
+	datasetlabel = []
+	datasetval = []
+	datasetList = []
+	dataset = Dataset()
+	type = datasetdetails[0]
+	datasetsaveas = datasetdetails[1]
+	print(datasetdetails)
+	if "INIT" in type:
+		for key in datasetsMap:
+			if str(key).split('*')[0] not in datasetList:
+				datasetList.append(str(key).split('*')[0])
+	if "GET" in type:
+		if str('datasetfiles'+datasetsaveas+str( pid)) in store and store.get(str('datasetfiles'+datasetsaveas+str( pid))) is not None:
+			datasetfiles = str(store.get(str('datasetfiles'+datasetsaveas+str( pid))))[2:len(str(store.get(str('datasetfiles'+datasetsaveas+str( pid)))))-1]
+		if str('datasetdescriptions'+datasetsaveas+str( pid)) in store and store.get(str('datasetdescriptions'+datasetsaveas+str( pid))) is not None:
+			datasetdescriptions = str(store.get(str('datasetdescriptions'+datasetsaveas+str( pid))))[2:len(str(store.get(str('datasetdescriptions'+datasetsaveas+str( pid)))))-1]
+		if str('dataseturls'+datasetsaveas+str( pid)) in store and store.get(str('dataseturls'+datasetsaveas+str( pid))) is not None:
+			dataseturls = str(store.get(str('dataseturls'+datasetsaveas+str( pid))))[2:len(str(store.get(str('dataseturls'+datasetsaveas+str( pid)))))-1]
+		if str('globusid'+datasetsaveas+str( pid)) in store and store.get(str('globusid'+datasetsaveas+str( pid))) is not None:
+			globusid = str(store.get(str('globusid'+datasetsaveas+str( pid))))[2:len(str(store.get(str('globusid'+datasetsaveas+str( pid)))))-1]
+		if str('datasetlabel'+datasetsaveas+str( pid)) in store and store.get(str('datasetlabel'+datasetsaveas+str( pid))) is not None:
+			datasetlabel.append(str(store.get(str('datasetlabel'+datasetsaveas+str( pid))))[2:len(str(store.get(str('datasetlabel'+datasetsaveas+str( pid)))))-1])
+		if str('datasetval'+datasetsaveas+str( pid)) in store and store.get(str('datasetval'+datasetsaveas+str( pid))) is not None:
+			datasetval.append(str(store.get(str('datasetval'+datasetsaveas+str( pid))))[2:len(str(store.get(str('datasetval'+datasetsaveas+str( pid)))))-1])
+	if "POST" in type:
+		datasetfiles = str(iDetails[5])
+		datasetdescriptions = str(iDetails[6])
+		dataseturls = str(iDetails[7])
+		globusid = str(iDetails[8])
+		for lab in list(iDetails[9]):
+			if "N/A" not in lab:
+				datasetlabel.append(str(lab))
+		for val in list(iDetails[10]):
+			if "N/A" not in val:
+				datasetval.append(str(val))
+	if "INIT" not in type:
+		if len(pifnamelist)>0 and len(pimnamelist)>0 and len(pilnamelist)>0:
+			info.addPiFirstName(pifnamelist)
+			info.addPiMiddleName(pimnamelist)
+			info.addPiLastName(pilnamelist)
+			store.put(str('pifname'+datasetsaveas+str( pid)), pifnamelist, ttl_secs=14400)
+			store.put(str('pimname'+datasetsaveas+str( pid)), pimnamelist, ttl_secs=14400)
+			store.put(str('pilname'+datasetsaveas+str( pid)), pilnamelist, ttl_secs=14400)
+		if datasetfiles and not datasetfiles.isspace():
+			info.addCollection(datasetfiles)
+			#session['pfirstName'] = fname
+			store.put(str('datasetfiles'+datasetsaveas+str( pid)), datasetfiles, ttl_secs=14400)
+		if datasetdescriptions and not datasetdescriptions.isspace():
+			info.addTag(datasetdescriptions)
+			#session['pfirstName'] = fname
+			store.put(str('datasetdescriptions'+datasetsaveas+str( pid)), datasetdescriptions, ttl_secs=14400)
+				
+		if dataseturls and not dataseturls.isspace():
+			if "N/A" not in dataseturls:
+				info.addNotebookFile(dataseturls)
+				store.put(str('dataseturls'+datasetsaveas+str( pid)), dataseturls, ttl_secs=14400)
+				
+		if globusid and not globusid.isspace():
+			info.addGlobusId(globusid)
+			#session['pfirstName'] = fname
+			if str('globusid'+datasetsaveas+str( pid)) not in store:
+				store.put(str('globusid'+datasetsaveas+str( pid)), globusid, ttl_secs=14400)
+
+		if len(datasetlabel)>0 and len(datasetval)>0:
+			for f, b in zip(datasetlabel, datasetval):
+				if "N/A" not in f and "N/A" not in b:
+					info.addExtra(f,b)
+					store.put(str('datasetlabel'+datasetsaveas+str(pid)), datasetlabel, ttl_secs=14400)
+					store.put(str('datasetval'+datasetsaveas+str(pid)), datasetval, ttl_secs=14400)
+		if "N/A" not in datasetsaveas:
+			infoMap[str(datasetsaveas) +"*"+str(pid)] = info
+			infoList.append(str(datasetsaveas))
+			info.addSaveAs(datasetsaveas)
+		print(info)
+		print(infoList)
+	return jsonify({'infoDetails':info.__dict__,'infoList':infoList})
+	
+@app.route('/delInfo',methods=['POST'])
+def delInfo():
+	delsave = request.json
+	datasetsaveas = str(delsave[0])
+	if datasetsaveas +"*"+ str(pid) in infoMap:
+		del infoMap[str(datasetsaveas) + str(pid)]
+	if str('pifname'+datasetsaveas+str( pid)) in store:
+		store.delete('pifname'+datasetsaveas+str( pid))
+	if str('pimname'+datasetsaveas+str( pid)) in store:
+		store.delete('pimname'+datasetsaveas+str( pid))
+	if str('pilname'+datasetsaveas+str( pid)) in store:
+		store.delete('pilname'+datasetsaveas+str( pid))
+	if str('datasetfiles'+datasetsaveas+str( pid)) in store:
+		store.delete('datasetfiles'+datasetsaveas+str( pid))
+	if str('datasetdescriptions'+datasetsaveas+str( pid)) in store:
+		store.delete('datasetdescriptions'+datasetsaveas+str( pid))
+	if str('dataseturls'+datasetsaveas+str( pid)) in store:
+		store.delete('dataseturls'+datasetsaveas+str( pid))
+	if str('globusid'+datasetsaveas+str( pid)) in store:
+		store.delete('globusid'+datasetsaveas+str( pid))
+	if str('datasetlabel'+datasetsaveas+str( pid)) in store:
+		store.delete('datasetlabel'+datasetsaveas+str( pid))
+	if str('datasetval'+datasetsaveas+str( pid)) in store:
+		store.delete('datasetval'+datasetsaveas+str( pid))
+	return jsonify({'infodetails':datasetsaveas})
 
 gaiduk = Person()
 gaiduk.addFirstName("Alex")

@@ -23,6 +23,7 @@ and open the template in the editor.
                 contentType: "application/json ; charset=utf-8",
                 data: JSON.stringify(pathist),
                 success: function (data) {
+                    $('#errors').empty();
                     console.log(data.listObjects);
                     $("#projtree").fancytree({
                         checkbox: false,
@@ -60,8 +61,10 @@ and open the template in the editor.
                     });
 
                 },
-                failure: function (errMsg) {
-                    alert(JSON.stringify(errMsg.toString()));
+                error: function (jqXHR, textStatus, errorThrown) {
+                    var diverror = $('#errors');
+                    diverror.append("<div class='form-style-2 centrist'> <font color='red'> ERROR: Please correct your Server Details</font></div>");
+                    $("#content").load("./pages/server.html");
                 }
             });
 
