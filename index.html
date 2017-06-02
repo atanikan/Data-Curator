@@ -8,13 +8,17 @@
         <link rel="stylesheet" href="./css/site.css">
         <link rel="stylesheet" href="./css/custom.css">
         <link rel="stylesheet" href="./jquery-ui-1.12.1.custom/jquery-ui.css">
-
+        <link rel="stylesheet" type="text/css" href="./css/jquery.datetimepicker.css">
+        <link rel="stylesheet" type="text/css" href="./css/vis-network.min.css">
         <link href="./css/bootstrap.min.css" rel="stylesheet">
         <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="//code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
         <script src="./src/jquery.fancytree.js"></script>
         <script src="./scripts/customjs.js"></script>
         <script src="./scripts/jquery-sortable.js"></script>
+        <script src="./scripts/vis.js"></script>
+        <!--<script src="./scripts/jquery.js"></script>-->
+        <script src="./scripts/build/jquery.datetimepicker.full.min.js"></script>
         <script src="./jquery-ui-1.12.1.custom/jquery-ui.js"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <!-- (Irrelevant source removed.) -->
@@ -58,6 +62,26 @@
                     $("#detailsid").addClass("is-active")
                     $("#content").load("./pages/details.html");
                 });
+                $("#workflow").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#workflowid").addClass("is-active")
+                    $("#content").load("./pages/workflow.html");
+                });
+                $("#download").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#downloadid").addClass("is-active")
+                    $("#content").load("./pages/download.html");
+                });
+                $("#publish").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#publishid").addClass("is-active")
+                    $("#content").load("./pages/publish.html");
+                });
+                $("#acknowledgement").click(function () {
+                    $("#navbar>li.is-active").removeClass("is-active");
+                    $("#acknowledgementid").addClass("is-active")
+                    $("#content").load("./pages/acknowledgement.html");
+                });
             });
 
             function goNext() {
@@ -91,47 +115,47 @@
                             Enter Your Details
                         </span>
                     </li>
-                    <li id="serverid" class="progress-step">
+                    <li id="serverid" class="progress-step disabled">
                         <a href="#" id="server"><span class="progress-marker">3</span></a>
                         <span class="progress-text">
                             Enter Server Information
                         </span>
                     </li>
-                    <li id="projectid" class="progress-step">
+                    <li id="projectid" class="progress-step disabled">
                         <a href="#" id="project"><span class="progress-marker">4</span></a>
                         <span class="progress-text">
                             Direct To Project
                         </span>
                     </li>
-                    <li id="curateid" class="progress-step">
+                    <li id="curateid" class="progress-step disabled">
                         <a href="#" id="curate"><span class="progress-marker">5</span></a>
                         <span class="progress-text">
                             Enter Project Metadata To Curate
                         </span>
                     </li>
-                    <li class="progress-step">
-                        <span class="progress-marker">6</span>
+                    <li id="workflowid" class="progress-step disabled">
+                        <a href="#" id="workflow"><span class="progress-marker">6</span></a>
                         <span class="progress-text">
                             Define Workflow
                         </span>
 
                     </li>
-                    <li class="progress-step">
-                        <span class="progress-marker">7</span>
+                    <li id="downloadid" class="progress-step disabled">
+                        <a href="#" id="download"><span class="progress-marker">7</span></a>
                         <span class="progress-text">
                             Download Metadata
                         </span>
 
                     </li>
-                    <li class="progress-step">
-                        <span class="progress-marker">8</span>
+                    <li id="publishid" class="progress-step disabled">
+                        <a href="#" id="publish"><span class="progress-marker">8</span></a>
                         <span class="progress-text">
                             Publish Metadata
                         </span>
 
                     </li>
-                    <li class="progress-step">
-                        <span class="progress-marker">9</span>
+                    <li id="acknowledgementid" class="progress-step disabled">
+                        <a href="#" id="acknowledgement"><span class="progress-marker">9</span></a>
                         <span class="progress-text">
                             Acknowledgement
                         </span>
@@ -152,6 +176,7 @@
                 </div>
             </div>
             <input type="hidden" id="projName" value=""/>
+            <input type="hidden" id="pid" value=""/>
         </div>
         <!-- (Irrelevant source removed.) -->
     </body>

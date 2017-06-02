@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script>
+            function savePersonalDetails(type) {
+		 var fname = $("#fname").val();
+                var mname = $("#mname").val();
+                var lname = $("#lname").val();
+                var plist = [];
+                plist.push(type);
+                if (fname.toString() != "")
+                    plist.push(fname);
+                else{
+                    plist.push("N/A");
+                }
+                if (mname.toString() != "")
+                    plist.push(mname);
+                else {
+                    plist.push("N/A");
+                }
+                if (lname.toString() != "")
+                    plist.push(lname);
+                else
+                    plist.push("N/A");
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getPersonalDetails',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(plist),
+                    success: function (data) {
+//                     console.log(data.pList[0].desc.lastName);
+                        console.log(data);
+                        if (type == "POST") {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#serverid").addClass("is-active");
+                            $("#detailsid").addClass("is-complete");
+                            $('#pid').val(data.pid);
+			    alert("Saved");
+
+                        } else {
+                            $("#fname").val(data.pdetails.desc.firstName);
+                            $("#mname").val(data.pdetails.desc.middleName);
+                            $("#lname").val(data.pdetails.desc.lastName);
+                            $('#loading').css("display", "none");
+                            $('#datacontent').css("display", "block");
+                        }
+                    }
+                });
+            }
+
+            (function () {
+               $('#loading').css("display", "none");
+               $('#datacontent').css("display", "block");
+                $('.mandate').bind("keyup blur", function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
+        </script>
+
+
+
+
+
+
+
+
+
+    </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <body>
+        <div class="form-style-2 centrist">
+            <div class="form-style-2-heading">Provide your information</div>
+            <form>
+                <label for="field1"><span>First Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="fname" value="" placeholder="Enter Your First Name"/></label>
+                <label for="field2"><span>Middle Name</span><input type="text" class="form-control"  id="mname" value="" placeholder="Enter Your Middle Name"/></label>
+                <label for="field3"><span>Last Name <span class="required">*</span></span><input type="text" class="form-control mandate" id="lname" value="" placeholder="Enter Your Last Name"/></label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="window.location = 'index.html';"/>
+                </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="savePersonalDetails('POST');"/>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

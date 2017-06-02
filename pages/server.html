@@ -20,7 +20,9 @@ and open the template in the editor.
                 var username = $("#username").val();
                 var password = $("#password").val();
                 var path = $("#path").val();
+                var pid = $("#pid").val();
                 var plist = [];
+                plist.push(pid);
                 plist.push(type);
                 if (servername.toString() != "")
                     plist.push(servername);
@@ -43,6 +45,7 @@ and open the template in the editor.
                             $("#navbar>li.is-active").removeClass("is-active");
                             $("#serverid").addClass("is-complete");
                             $("#projectid").addClass("is-active");
+                            $("#projectid").removeClass("disabled");
                             $("#content").load("./pages/project.html");
                         } else {
                             $("#servername").val(data.serverDetails.desc.serverName);
@@ -61,7 +64,7 @@ and open the template in the editor.
 
 
             (function () {
-                $('.mandate').focusin(function () {
+                $('.mandate').bind("keyup blur", function () {
 
                     var empty = false;
                     $('.mandate').each(function () {
@@ -114,7 +117,7 @@ and open the template in the editor.
                 <label for="field1"><span>Server Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="servername" value="" placeholder="Enter Server Name Where Data Lies" required/></label>
                 <label for="field2"><span>User Name <span class="required">*</span></span><input type="text" class="form-control mandate"  id="username" value="" placeholder="Enter User Name to Login"/></label>
                 <label for="field3"><span>Password <span class="required">*</span></span><input type="password" class="form-control mandate" id="password" value="" placeholder="Enter Password to Login" required/></label>
-                <label for="field4"><span>Path<span class="required">*</span></span><input type="text" class="form-control mandate"  id="path" value="" title="Enter root folder of the directory" placeholder="Enter relative path to the Data"/></label>
+                <label for="field4"><span>Path</span><input type="text" class="form-control"  id="path" value="" title="Enter folder of the directory. eg: /cds (Default)" placeholder="Enter relative path to the Data"/></label>
                 <label>
                     <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="$('#content').load('./pages/details.html');"/>
                 </label>

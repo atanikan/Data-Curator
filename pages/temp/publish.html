@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script>
+            $(document).ready(function () {
+                saveServerDetails('GET');
+            });
+            function saveServerDetails(type) {
+                var type = type;
+                var servername = $("#servername").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var path = $("#path").val();
+                var plist = [];
+                plist.push(type);
+                if (servername.toString() != "")
+                    plist.push(servername);
+                if (username.toString() != "")
+                    plist.push(username);
+                if (password.toString() != "")
+                    plist.push(password);
+                if (path.toString() != "")
+                    plist.push(path);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getServerDetails',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(plist),
+                    success: function (data) {
+//                        console.log(data.pList[0].desc.lastName);
+                        console.log(data);
+                        if (type == "POST") {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#serverid").addClass("is-complete");
+                            $("#projectid").addClass("is-active");
+                        } else {
+                            $("#servername").val(data.serverDetails.desc.serverName);
+                            $("#username").val(data.serverDetails.desc.Username);
+                            $("#password").val(data.serverDetails.desc.Password);
+                            $("#path").val(data.serverDetails.desc.Path);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var diverror = $('#errors');
+                        diverror.append("<div class='form-style-2 centrist'> <font color='red'>"+jqXHR+" "+textStatus+" "+errorThrown +"</font></div>")
+                    }
+                });
+            }
+
+
+
+            (function () {
+                $('.mandate').focusin(function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
+
+
+
+
+
+
+        </script>
+
+
+
+
+
+
+
+
+
+    </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <body>
+        <div class="form-style-2 centrist">
+            <div class="form-style-2-heading">Publish Metadata Server Details</div>
+            <form>
+                <label for="field1"><span>DB Server <span class="required">*</span></span><input type="text" class="form-control mandate"  id="dbservername" value="" placeholder="Enter DB Server Name to publish data" required/></label>
+                <label for="field2"><span>DB Username <span class="required">*</span></span><input type="text" class="form-control mandate"  id="dbusername" value="" placeholder="Enter DB User Name to publish data"/></label>
+                <label for="field3"><span>DB Password <span class="required">*</span></span><input type="password" class="form-control mandate" id="dbpassword" value="" placeholder="Enter DB Password to publish data" required/></label>
+                <label for="field4"><span>DB Collection<span class="required">*</span></span><input type="text" class="form-control mandate"  id="dbcollection" value="" placeholder="Enter DB Collection"/></label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="publishDetails('POST');"/>
+                </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Skip" value="Skip" onclick="$('#content').load('./pages/acknowledgement.html');;"/>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

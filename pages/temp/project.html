@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <script>
+            /* 
+             * To change this license header, choose License Headers in Project Properties.
+             * To change this template file, choose Tools | Templates
+             * and open the template in the editor.
+             */
+            $(document).ready(function () {
+                saveProjectPath('GET');
+            });
+            var pathist = [];
+            pathist.push($("#pid").val());
+            $.ajax({
+                method: 'POST',
+                url: 'http://fire.uchicago.edu:5000/getTreeInfo',
+                dataType: "json",
+                contentType: "application/json ; charset=utf-8",
+                data: JSON.stringify(pathist),
+                success: function (data) {
+                    $('#errors').empty();
+                    console.log(data.listObjects);
+                    $("#projtree").fancytree({
+                        checkbox: false,
+                        selectMode: 1,
+                        persist: {
+                            expandLazy: false,
+                            overrideSource: false,
+                            store: "cookie", // force using cookies!
+                        },
+                        source: data.listObjects,
+                        lazyLoad: function (event, data) {
+                            var pathist = [];
+                            pathist.push($("#pid").val());
+                            var node = data.node;
+                            pathist.push(node.key);
+                            data.result = $.ajax({
+                                url: 'http://fire.uchicago.edu:5000/getTreeInfo',
+                                method: 'POST',
+                                dataType: "json",
+                                contentType: "application/json ; charset=utf-8",
+                                data: JSON.stringify(pathist),
+                                cache: false,
+                                success: function (resp) {
+                                    console.log(resp.listObjects);
+                                    node.addChildren(resp.listObjects);
+                                    //node.fixSelection3AfterClick();
+                                    node.toggleExpanded();
+                                }
+                            });
+                        },
+                        activate: function (event, data) {
+                            $("#path").val(data.node.key);
+                        },
+                        cookieId: "fancytree-Cb4",
+                        idPrefix: "fancytree-Cb4-"
+                    });
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    var diverror = $('#errors');
+                    diverror.append("<div class='form-style-2 centrist'> <font color='red'> ERROR: Please correct your Server Details</font></div>");
+                    $("#content").load("{{ url_for('static', filename='./pages/server.html') }}");
+                }
+            });
+
+            function saveProjectPath(type) {
+                var path = $("#path").val();
+                var pid = $("#pid").val();
+                pathList = []
+                pathList.push(pid);
+                pathList.push(type);
+                if (path.toString() != "") {
+                    pathList.push(path);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/setPath',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(pathList),
+                    success: function (data) {
+                        $('#projName').val(data.projectPath.projectName);
+                        if (type === "GET") {
+                            $("#path").val(data.projectPath.Path);
+                        }else{
+			    $("#navbar>li.is-active").removeClass("is-active");
+                            $("#projectid").addClass("is-complete");
+                            $("#curateid").addClass("is-active");
+			   alert("Saved");
+			} 
+                    }
+                });
+
+
+            }
+
+            (function () {
+                $('.mandate').bind("keyup blur", function () {
+
+                    var empty = false;
+                    $('.mandate').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+
+                    if (empty) {
+                        $('#Save').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Save').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            })()
+
+
+            $(function () {
+                $(document).tooltip();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="projtree" style="width: 40%; float: left;">
+        </div>
+        <div style="width: 10%"></div>
+        <div id = "menulist" style="width: 50%; float: right; margin-right: 20px; margin-left: 10px;">
+            <form>
+                <label for="field5"><span>Absolute Project Path<span class="required">*</span></span><input type="text" class="form-control textstatic mandate"  id="path" value="" placeholder="Naviagte To Path Using Tree" required/></label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" disabled="disabled" id ="Save" value="Save" onclick="saveProjectPath('POST');"/>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

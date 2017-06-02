@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script>
+            $(document).ready(function () {
+                //saveDownload('GET');
+            });
+            var isClicked = false;
+            function downloadData(type) {
+                if(isClicked){
+			return;
+		}
+                var type = type;
+                var downloadVal = $("input[name='downloadRadio']:checked").val();
+                var plist = [];
+                var pid = $("#pid").val();
+                plist.push(pid);
+                plist.push(type);
+                if (downloadVal.toString() != "")
+                    plist.push(downloadVal);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/getDownload',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(plist),
+                    success: function (data) {
+//                        console.log(data.pList[0].desc.lastName);
+                        console.log(data);
+                        if (type == "POST") {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#downloadid").addClass("is-complete");
+                            $("#publishid").addClass("is-active");
+                            $("#publishid").removeClass("disabled");
+                            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data.project.desc));
+                            var dlAnchorElem = document.getElementById('Download');
+                            dlAnchorElem.setAttribute("href", dataStr);
+                            dlAnchorElem.setAttribute("download", "data.json");
+                            isClicked = true;
+                            dlAnchorElem.click();
+                            return false;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var diverror = $('#errors');
+                        diverror.append("<div class='form-style-2 centrist'> <font color='red'>" + jqXHR + " " + textStatus + " " + errorThrown + "</font></div>")
+                    }
+                });
+            }
+
+
+
+            
+
+
+
+
+
+
+        </script>
+
+
+
+
+
+
+
+
+
+    </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <body>
+        <div class="form-style-2 centrist">
+            <div class="form-style-2-heading">Download Metadata</div>
+            <form>
+                <label for="field1"><span>Public Access?<span class="required">*</span></span></label>
+                <label>
+                    <input type="radio" name="downloadRadio" value="Yes"> Yes <input type="radio" name="downloadRadio" value="No"> No
+                </label>
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" value="Back" onclick="$('#content').load('./pages/workflow.html');"/>
+                </label>
+                <label>
+                    <a  class="btn btn-lg btn-primary btn-block"  id ="Download" onclick="downloadData('POST');">Download</a>
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

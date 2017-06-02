@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <script>
+            /* 
+             * To change this license header, choose License Headers in Project Properties.
+             * To change this template file, choose Tools | Templates
+             * and open the template in the editor.
+             */
+
+
+
+            var pathist = [];
+			var findex = 0;
+            var mindex = 0;
+            var lindex = 0;
+
+			var authorfindex = 0;
+            var authormindex = 0;
+            var authorlindex = 0;
+
+
+            pathist.push($("#pid").val());
+            $.ajax({
+                method: 'POST',
+                url: 'http://fire.uchicago.edu:5000/getTreeInfo',
+                dataType: "json",
+                contentType: "application/json ; charset=utf-8",
+                data: JSON.stringify(pathist),
+                success: function (data) {
+                    $("#tree").fancytree({
+                        checkbox: true,
+                        selectMode: 3,
+                        persist: {
+                            expandLazy: false,
+                            overrideSource: false,
+                            store: "cookie", // force using cookies!
+                        },
+                        source: data.listObjects,
+                        lazyLoad: function (event, data) {
+                            var pathist = [];
+                            pathist.push($("#pid").val());
+                            var node = data.node;
+                            pathist.push(node.key);
+                            data.result = $.ajax({
+                                url: 'http://fire.uchicago.edu:5000/getTreeInfo',
+                                method: 'POST',
+                                dataType: "json",
+                                contentType: "application/json ; charset=utf-8",
+                                data: JSON.stringify(pathist),
+                                cache: false,
+                                success: function (resp) {
+                                    node.addChildren(resp.listObjects);
+                                    node.fixSelection3AfterClick();
+                                    node.toggleExpanded();
+                                }
+                            });
+                        },
+                        select: function (event, data) {
+                            // Get a list of all selected nodes, and convert to a key array:
+                            var selKeys = $.map(data.tree.getSelectedNodes(), function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelection3").text(selKeys.join(", "));
+                            // Get a list of all selected TOP nodes
+                            var selRootNodes = data.tree.getSelectedNodes(true);
+                            // ... and convert to a key array:
+                            var selRootKeys = $.map(selRootNodes, function (node) {
+                                return node.key;
+                            });
+                            $("#echoSelectionRootKeys3").text(selRootKeys.join(", "));
+                            $("#echoSelectionRoots3").text(selRootNodes.join(", "));
+                        },
+                        dblclick: function (event, data) {
+                            data.node.toggleSelected();
+                        },
+                        keydown: function (event, data) {
+                            if (event.which === 32) {
+                                data.node.toggleSelected();
+                                return false;
+                            }
+                        },
+                    });
+                },
+                failure: function (errMsg) {
+                    alert(JSON.stringify(errMsg.toString()));
+                }
+            });
+            $("#btnToggleSelect").click(function () {
+                $("#tree").fancytree("getRootNode").visit(function (node) {
+                    node.toggleSelected();
+                });
+                return false;
+            });
+            $("#btnDeselectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(false);
+                });
+                return false;
+            });
+            $("#btnSelectAll").click(function () {
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    node.setSelected(true);
+                });
+                return false;
+            });
+            //copy from tree
+            $("#infonotebookfile").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#infonotebookfile").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CNotebookfile").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#CNotebookfile").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CFiles").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#CFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#CImagefiles").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#CImagefiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#DatasetsFiles").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#DatasetsFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $("#ScriptsFiles").bind("keyup focusin", function () {
+                $('#tree').removeClass('disabled');
+                var values = []
+                $("#tree").fancytree("getTree").visit(function (node) {
+                    if (node.selected) {
+                        if (node.folder != "true") {
+                            var keypath = node.key;
+                            var projName = $('#projName').val();
+                            var path = keypath.substring(keypath.indexOf(projName));
+                            values.push(path);
+                            var copiedcontent = values.slice();
+                            $("#ScriptsFiles").val(copiedcontent);
+                        }
+                    }
+                });
+            });
+            $(".disabler").bind("keyup focusin", function () {
+                $('#tree').fancytree('getTree').visit(function (node) {
+                    node.setSelected(false);
+                });
+                $('#tree').addClass('disabled');
+            });
+            //add new fields
+            function addNewFields(itemName) {
+                if (itemName == 'Info') {
+                    var div = $('#extraInfoFields');
+                    div.append('<label id="InfoExtra" for="field7"><span><input type="text" class="form-control textstatic infolabel"  title="Add Label For New Info Field" placeholder="Add Label For New Info Field" id="infolabel" value=""</span><input type="text" class="form-control textstatic infoval" title="Add Value For New Info Field" placeholder="Add Value For New Info Field" id="infovalue" value=""/></label>')
+                }
+                if (itemName == 'Charts') {
+                    var div = $('#extraChartsFields');
+                    div.append('<label id="ChartsExtra" for="field10"><span><input type="text" class="form-control textstatic chartlabel"  title="Add Label For New Chart Field" placeholder="Add Label For New Chart Field" id="chartlabel" value=""</span><input type="text" class="form-control textstatic chartval" title="Add Value For New Info Field" placeholder="Add Value For New Chart Field chartvalue" id="chartvalue" value=""/></label>')
+                }
+                if (itemName == 'Tools') {
+                    var div = $('#extraToolsFields');
+                    div.append('<label id="ToolsExtra" for="field10"><span><input type="text" class="form-control textstatic toolslabel"  title="Add Label For New Tools Field" placeholder="Add Label For New Tools Field" id="toolslabel" value=""</span><input type="text" class="form-control textstatic toolsval" title="Add Value For New Tools Field" placeholder="Add Value For New Tools Field" id="chartvalue" value=""/></label>')
+                }
+                if (itemName == 'Datasets') {
+                    var div = $('#extraDatasetsFields');
+                    div.append('<label id="DatasetsExtra" for="field10"><span><input type="text" class="form-control textstatic datasetslabel"  title="Add Label For New Datasets Field" placeholder="Add Label For New Datasets Field" id="datasetslabel" value=""</span><input type="text" class="form-control textstatic datasetsval" title="Add Value For New Datasets Field" placeholder="Add Value For New Datasets Field" id="datasetsvalue" value=""/></label>')
+                }
+                if (itemName == 'Scripts') {
+                    var div = $('#extraScriptsFields');
+                    div.append('<label id="ScriptsExtra" for="field10"><span><input type="text" class="form-control textstatic scriptslabel"  title="Add Label For New Scripts Field" placeholder="Add Label For New Scripts Field" id="scriptslabel" value=""</span><input type="text" class="form-control textstatic scriptsval" title="Add Value For New Scripts Field" placeholder="Add Value For New Scripts Field" id="scriptsvalue" value=""/></label>')
+                }
+                if (itemName == 'Reference') {
+                    var div = $('#extraReferenceFields');
+                    div.append('<label id="ReferenceExtra" for="field10"><span><input type="text" class="form-control textstatic referencelabel"  title="Add Label For New Reference Field" placeholder="Add Label For New Reference Field" id="referencelabel" value=""</span><input type="text" class="form-control textstatic referenceval" title="Add Value For New Reference Field" placeholder="Add Value For New Reference Field" id="referencevalue" value=""/></label>')
+                }
+            }
+
+
+            function removeNewFields(itemName) {
+                if (itemName == 'Info') {
+                    $('#InfoExtra').remove();
+                }
+                if (itemName == 'Charts') {
+                    $('#ChartsExtra').remove();
+                }
+                if (itemName == 'Tools') {
+                    $('#ToolsExtra').remove();
+                }
+                if (itemName == 'Datasets') {
+                    $('#DatasetsExtra').remove();
+                }
+                if (itemName == 'Scripts') {
+                    $('#ScriptsExtra').remove();
+                }
+                if (itemName == 'Reference') {
+                    $('#ReferenceExtra').remove();
+                }
+            }
+            $('#del').click(function () {
+                var table = $(this).closest('table');
+                if (table.find('input:text').length > 1) {
+                    table.find('input:text').last().closest('tr').remove();
+                }
+            });
+
+            function addField(elemid) {
+                var addfield = $('#' + elemid.toString());
+                if (elemid === 'pifield1') {
+					findex = findex + 1;
+                    addfield.append('<input type="text" class="form-control disabler textstatic pifname"  id="pifname' + findex + '" value="" placeholder="Enter First Name of PI" required/>');
+                }
+                if (elemid === 'pifield2') {
+					mindex = mindex + 1;
+                    addfield.append('<input type ="text" class="form-control disabler textstatic pimname" id = "pimname' + mindex + '" value="" placeholder="Enter Middle Name of PI"/></label>');
+                }
+                if (elemid === 'pifield3') {
+					lindex = lindex + 1;
+                    addfield.append('<input type="text" class="form-control disabler textstatic pilname"  id="pilname' + lindex + '" value="" placeholder="Enter Last Name of PI"/> </label>');
+                }
+				if (elemid === 'authorfield1') {
+                    authorfindex = authorfindex + 1;
+                    addfield.append('<input type="text" class="form-control disabler textstatic authorfname"  id="authorfname' + authorfindex + '" value="" placeholder="Enter First Name of Author" required/>');
+                }
+                if (elemid === 'authorfield2') {
+                    authormindex = authormindex + 1;
+                    addfield.append('<input type ="text" class="form-control disabler textstatic authormname" id = "authormname' + authormindex + '" value="" placeholder="Enter Middle Name of Author"/></label>');
+                }
+                if (elemid === 'authorfield3') {
+                    authorlindex = authorlindex + 1;
+                    addfield.append('<input type="text" class="form-control disabler textstatic authorlname"  id="authorlname' + authorlindex + '" value="" placeholder="Enter Last Name of Author"/> </label>');
+                }
+            }
+
+
+            function reset(inp) {
+                if (inp == 'Info') {
+                    $(".pifname").each(function () {
+                        $(this).val('');
+                    });
+                    $(".pimname").each(function () {
+                        $(this).val('');
+                    });
+                    $(".pilname").each(function () {
+                        $(this).val('');
+                    });
+                    $('#collections').val('');
+                    $('#tags').val('');
+                    $('#infonotebookfile').val('');
+                    $('#InfoSaveas').val('');
+                    $('#globusid').val('');
+                    $(".infolabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".infoval").each(function () {
+                        $(this).val('');
+                    });
+					$('#PublishedDate').val('');
+                    $('#ReceivedDate').val('');
+                    $('#DeleteInfo').hide();
+                }
+                if (inp == 'Charts') {
+                    $("input[name='ChartsRadio'][value='Figure']").prop('checked', true);
+                    $('#Caption').val('');
+                    $('#Number').val('');
+                    $('#CFiles').val('');
+                    $('#CImagefiles').val('');
+                    $('#CNotebookfile').val('');
+                    $('#CProperties').val('');
+                    $('#CSaveas').val('');
+                    $(".chartlabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".chartval").each(function () {
+                        $(this).val('');
+                    });
+                    $('#DeleteChart').hide();
+                }
+                if (inp == 'Tools') {
+                    $("input[name='ToolsRadio'][value='Software']").prop('checked', true);
+                    $('#PackageName').val('');
+                    $('#ProgramName').val('');
+                    $('#Version').val('');
+                    $('#ToolsUrls').val('');
+                    $('#FacilityName').val('');
+                    $('#Measurement').val('');
+                    $('#ToolsEUrls').val('');
+                    $('#Toolssaveas').val('');
+                    $(".toolslabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".toolsval").each(function () {
+                        $(this).val('');
+                    });
+                    $('#DeleteTools').hide();
+                    $('#Software').css("display", "block");
+                    $('#Experiment').css("display", "none");
+                }
+                if (inp == 'Datasets') {
+                    $('#DatasetsFiles').val('');
+                    $('#DatasetsDescription').val('');
+                    $('#DatasetsUrls').val('');
+                    $('#Datasetssaveas').val('');
+                    $(".datasetslabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".datasetsval").each(function () {
+                        $(this).val('');
+                    });
+                    $('#DeleteDatasets').hide();
+                }
+                if (inp == 'Scripts') {
+                    $('#ScriptsFiles').val('');
+                    $('#ScriptsDescription').val('');
+                    $('#ScriptsUrls').val('');
+                    $('#Scriptssaveas').val('');
+                    $(".scriptslabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".scriptsval").each(function () {
+                        $(this).val('');
+                    });
+                    $('#DeleteScripts').hide();
+                }
+                if (inp == 'Reference') {
+                    $('#Kind').val('');
+                    $(".authorfname").each(function () {
+                        $(this).val('');
+                    });
+
+                    $(".authormname").each(function () {
+                        $(this).val('');
+                    });
+
+                    $(".authorlname").each(function () {
+                        $(this).val('');
+                    });
+                    $('#RefTitle').val('');
+                    $('#JournalFull').val('');
+                    $('#JournalAbbr').val('');
+                    $('#Volume').val('');
+                    $('#Page').val('');
+                    $('#Year').val('');
+                    $('#PublishedDate').val('');
+                    $('#ReceivedDate').val('');
+                    $('#DOI').val('');
+                    $('#Abstract').val('');
+                    $('#referenceUrls').val('');
+
+                    $('#referenceSaveas').val('');
+                    $(".referencelabel").each(function () {
+                        $(this).val('');
+                    });
+                    $(".referenceval").each(function () {
+                        $(this).val('');
+                    });
+                    $('#DeleteReference').hide();
+                }
+
+            }
+
+
+            var infoSaveList = [];
+            function saveInfo(type, saveas) {
+                var type = type;
+                var Collections = "";
+                var Tags = "";
+                var infonotebookfile = "";
+                var globusid = "";
+                var lablist = [];
+                var vallist = [];
+                var fnamelist = [];
+                var mnamelist = [];
+                var lnamelist = [];
+                $(".pifname").each(function () {
+                    var firstname = $(this).val();
+                    if (firstname.toString() != "") {
+                        fnamelist.push(firstname);
+                    }
+                });
+                    $(".pimname").each(function () {
+                    var mname = $(this).val();
+                    if (mname.toString() != "") {
+                        mnamelist.push(mname);
+                    }else{
+                         mnamelist.push("N/A");
+                    }
+                });
+                $(".pilname").each(function () {
+                    var lname = $(this).val();
+                    if (lname.toString() != "") {
+                        lnamelist.push(lname);
+                    }
+                });
+
+                    Collections = $('#collections').val();
+                    Tags = $('#tags').val();
+                    infonotebookfile = $('#infonotebookfile').val();
+                    globusid = $('#globusid').val();
+                    lablist = [];
+                    vallist = [];
+                
+                var InfoSaveas = "";
+                if (type == 'POST') {
+                    InfoSaveas = $('#InfoSaveas').val();
+                } else {
+                    InfoSaveas = saveas;
+                }
+                var infolist = [];
+                var pid = $("#pid").val();
+                infolist.push(pid);
+                infolist.push(type);
+                if (InfoSaveas.toString() != "")
+                    infolist.push(InfoSaveas);
+                else {
+                    InfoSaveas = "N/A";
+                    infolist.push(InfoSaveas);
+                }
+
+                if (fnamelist.length > 0)
+                    infolist.push(fnamelist);
+                if (mnamelist.length > 0)
+                    infolist.push(mnamelist);
+                if (lnamelist.length > 0)
+                    infolist.push(lnamelist);
+                if (Collections.toString() != "")
+                    infolist.push(Collections);
+                if (Tags.toString() != "")
+                    infolist.push(Tags);
+                if (infonotebookfile.toString() != "") {
+                    infolist.push(infonotebookfile);
+                }
+                else {
+                    infonotebookfile = "N/A";
+                    infolist.push(infonotebookfile);
+                }
+                if (globusid.toString() != "")
+                    infolist.push(globusid);
+                $(".infolabel").each(function () {
+                    var label = $(this).val();
+                    if (label.toString() != "") {
+                        lablist.push(label);
+                    }
+                });
+                if (lablist.length > 0) {
+                    infolist.push(lablist);
+                } else {
+                    lablist.push("N/A");
+                    infolist.push(lablist);
+                }
+                $(".infoval").each(function () {
+                    var infoval = $(this).val();
+                    if (infoval.toString() != "") {
+                        vallist.push(infoval);
+                    }
+                });
+                if (vallist.length > 0) {
+                    infolist.push(vallist);
+                } else {
+                    vallist.push("N/A");
+                    infolist.push(vallist);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getInfo',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(infolist),
+                   success: function (data) {
+                        console.log(data);
+						if (type === "POST")
+                            alert("Saved");
+                        if (type === "GET" || type === "POST") {
+                            if (data.infoList.length > 0) {
+                                for (var i = 0; i < data.infoDetails.desc.pi.length; i++) {
+                                    $("pifname" + i).val(data.infoDetails.desc.pi[i].firstName);
+                                    $("pimname" + i).val(data.infoDetails.desc.pi[i].middleName);
+                                    $("pimname" + i).val(data.infoDetails.desc.pi[i].lastName);
+
+
+
+
+
+
+                                }
+                                $('#collections').val(data.infoDetails.desc.collections);
+                                $('#tags').val(data.infoDetails.desc.tags);
+                                $('#infonotebookfile').val(data.infoDetails.desc.info);
+                                $('#globusid').val(data.infoDetails.desc.globusid);
+                                $('#InfoSaveas').val(data.infoDetails.desc.saveas);
+                                $(".infolabel").each(function (index, value) {
+                                    $(this).val(data.infoDetails.desc.extrasfield[index]);
+                                });
+                                $(".infoval").each(function (index, value) {
+                                    $(this).val(data.infoDetails.desc.extrasvalue[index]);
+                                });
+                                infolist.push(lablist);
+                                if (data.infoDetails.desc.saveas != "") {
+                                    $('#DeleteInfo').show();
+                                } else {
+                                    $('#DeleteInfo').hide();
+                                }
+                                $('#DeleteInfo').attr('onclick', 'deleteInfo("' + data.infoDetails.desc.saveas.toString() + '")');
+							}
+						}
+                    }
+                });
+            }
+
+
+            function deleteInfo(saveas) {
+                var dellist = [];
+                var pid = $("#pid").val();
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delInfo',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                       
+                        reset('Info');
+                    }
+                });
+            }
+
+
+
+            var chartsSaveList = [];
+            function saveCharts(type, saveas) {
+                var type = type;
+                var radioValue = $("input[name='ChartsRadio']:checked").val();
+                var Caption = $('#Caption').val();
+                var Number = $('#Number').val();
+                var CFiles = $('#CFiles').val();
+                var CImagefiles = $('#CImagefiles').val();
+                var CNotebookFile = $('#CNotebookfile').val();
+                var Cproperties = $('#CProperties').val();
+                var Csaveas = "";
+                var lablist = [];
+                var vallist = [];
+                if (type === 'POST') {
+                    Csaveas = $('#CSaveas').val();
+                } else {
+                    Csaveas = saveas;
+                }
+                var clist = [];
+                clist.push(pid);
+                clist.push(type);
+                if (Csaveas.toString() != "")
+                    clist.push(Csaveas);
+                else {
+                    Csaveas = "N/A";
+                    clist.push(Csaveas);
+                }
+                if (typeof radioValue != 'undefined' && radioValue.toString() != "")
+                    clist.push(radioValue);
+                if (Caption.toString() != "")
+                    clist.push(Caption);
+                if (Number.toString() != "")
+                    clist.push(Number);
+                if (CFiles.toString() != "")
+                    clist.push(CFiles);
+                if (CImagefiles.toString() != "")
+                    clist.push(CImagefiles);
+                if (CNotebookFile.toString() != "")
+                    clist.push(CNotebookFile);
+                if (Cproperties.toString() != "")
+                    clist.push(Cproperties);
+                $(".chartlabel").each(function () {
+                    var label = $(this).val();
+                    if (label.toString() != "") {
+                        lablist.push(label);
+                    }
+                });
+                if (lablist.length > 0) {
+                    clist.push(lablist);
+                } else {
+                    lablist.push("N/A");
+                    clist.push(lablist);
+                }
+                $(".chartval").each(function () {
+                    var chartval = $(this).val();
+                    if (chartval.toString() != "") {
+                        vallist.push(chartval);
+                    }
+                });
+                if (vallist.length > 0) {
+                    clist.push(vallist);
+                } else {
+                    vallist.push("N/A");
+                    clist.push(vallist);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getCharts',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(clist),
+                    success: function (data) {
+                        console.log(data);
+                        if (type == "INIT" && data.chartList.length > 0) {
+                            for (var i = 0; i < data.chartList.length; i++) {
+                                if (chartsSaveList.indexOf(data.chartList[i]) < 0) {
+                                    var navlist = $('#chartsList');
+                                    var b = document.createElement('button');
+                                    b.setAttribute('class', 'btn btn-lg btn-primary chartdeletable');
+                                    b.setAttribute('value', data.chartList[i]);
+                                    b.setAttribute('onclick', 'saveCharts("GET","' + data.chartList[i] + '");');
+                                    b.innerHTML = data.chartList[i];
+                                    navlist.append(b);
+                                    chartsSaveList.push(data.chartList[i]);
+                                }
+                            }
+                        }
+                        if (type == "POST") {
+                            if (chartsSaveList.indexOf(Csaveas) < 0) {
+                                var navlist = $('#chartsList');
+                                var b = document.createElement('button');
+                                b.setAttribute('class', 'btn btn-lg btn-primary chartdeletable');
+                                b.setAttribute('value', Csaveas);
+                                b.setAttribute('onclick', 'saveCharts("GET","' + Csaveas.toString() + '");');
+                                b.innerHTML = Csaveas.toString();
+                                navlist.append(b);
+                                chartsSaveList.push(Csaveas);
+                            }
+                            reset('Charts');
+							alert("Saved");
+                        }
+                        if (type == "GET") {
+                            $('input[name=ChartsRadio][value="' + data.cdetails.desc.kind.toString() + '"]').prop('checked', true);
+                            $('#Caption').val(data.cdetails.desc.caption);
+                            $('#Number').val(data.cdetails.desc.number);
+                            $('#CFiles').val(data.cdetails.desc.files);
+                            $('#CImagefiles').val(data.cdetails.desc.imageFile);
+                            $('#CNotebookfile').val(data.cdetails.desc.notebookFile);
+                            $('#CProperties').val(data.cdetails.desc.properties);
+                            $('#CSaveas').val(data.cdetails.desc.saveas);
+                            $(".chartlabel").each(function () {
+                                $(this).val(data.cdetails.desc.extras);
+                            });
+                            clist.push(lablist);
+                            $(".chartval").each(function () {
+                                $(this).val(data.cdetails.desc.extras);
+                            });
+                            if (data.cdetails.desc.saveas != "") {
+                                $('#DeleteChart').show();
+                            } else {
+                                $('#DeleteChart').hide();
+                            }
+                            $('#DeleteChart').attr('onclick', 'deleteCharts("' + data.cdetails.desc.saveas.toString() + '")');
+                        }
+                    }
+                });
+            }
+
+
+            function deleteCharts(saveas) {
+                var dellist = [];
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delCharts',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                        var index = chartsSaveList.indexOf(saveas);
+                        chartsSaveList.splice(index, 1);
+                        $('.chartdeletable').remove();
+                        for (var i = 0; i < chartsSaveList.length; i++) {
+                            var navlist = $('#chartsList');
+                            var b = document.createElement('button');
+                            b.setAttribute('class', 'btn btn-lg btn-primary chartdeletable');
+                            b.setAttribute('value', chartsSaveList[i]);
+                            b.setAttribute('onclick', 'saveCharts("GET","' + chartsSaveList[i] + '");');
+                            b.innerHTML = chartsSaveList[i].toString();
+                            navlist.append(b);
+                        }
+                        reset('Charts');
+                    }
+                });
+            }
+
+
+
+
+
+            var toolsSaveList = [];
+            function saveTools(type, saveas) {
+                var type = type;
+                var Kind = $("input[name='ToolsRadio']:checked").val();
+                var PackageName = "";
+                var ProgramName = "";
+                var Version = "";
+                var ToolsUrls = "";
+                var FacilityName = "";
+                var Measurement = "";
+                var ToolsEUrls = "";
+                var Toolssaveas = "";
+                var lablist = [];
+                var vallist = [];
+                if (type == 'POST') {
+                    Toolssaveas = $('#Toolssaveas').val();
+                } else {
+                    Toolssaveas = saveas;
+                }
+                var toolslist = [];
+                console.log("here" + pid);
+                toolslist.push(pid);
+                toolslist.push(type);
+                if (Toolssaveas.toString() != "")
+                    toolslist.push(Toolssaveas);
+                else {
+                    Toolssaveas = "N/A";
+                    toolslist.push(Toolssaveas);
+                }
+                if (typeof Kind != 'undefined' && Kind.toString() != "")
+                    toolslist.push(Kind);
+                if (Kind === 'Software') {
+                    PackageName = $('#PackageName').val();
+                    ProgramName = $('#ProgramName').val();
+                    Version = $('#Version').val();
+                    ToolsUrls = $('#ToolsUrls').val();
+                    if (PackageName.toString() != "")
+                        toolslist.push(PackageName);
+                    if (ProgramName.toString() != "")
+                        toolslist.push(ProgramName);
+                    if (Version.toString() != "")
+                        toolslist.push(Version);
+                    if (ToolsUrls.toString() != "")
+                        toolslist.push(ToolsUrls);
+                    $(".toolslabel").each(function () {
+                        var label = $(this).val();
+                        if (label.toString() != "") {
+                            lablist.push(label);
+                        }
+                    });
+                    if (lablist.length > 0) {
+                        toolslist.push(lablist);
+                    } else {
+                        lablist.push("N/A");
+                        toolslist.push(lablist);
+                    }
+                    $(".toolsval").each(function () {
+                        var toolsval = $(this).val();
+                        if (toolsval.toString() != "") {
+                            vallist.push(toolsval);
+                        }
+                    });
+                    if (vallist.length > 0) {
+                        toolslist.push(vallist);
+                    } else {
+                        vallist.push("N/A");
+                        toolslist.push(vallist);
+                    }
+                }
+                if (Kind === 'Experiment') {
+                    FacilityName = $('#FacilityName').val();
+                    Measurement = $('#Measurement').val();
+                    ToolsEUrls = $('#ToolsEUrls').val();
+                    if (FacilityName.toString() != "")
+                        toolslist.push(FacilityName);
+                    if (Measurement.toString() != "")
+                        toolslist.push(Measurement);
+                    if (ToolsEUrls.toString() != "")
+                        toolslist.push(ToolsEUrls);
+                    $(".toolslabel").each(function () {
+                        var label = $(this).val();
+                        if (label.toString() != "") {
+                            lablist.push(label);
+                        }
+                    });
+                    if (lablist.length > 0) {
+                        toolslist.push(lablist);
+                    } else {
+                        lablist.push("N/A");
+                        toolslist.push(lablist);
+                    }
+                    $(".toolsval").each(function () {
+                        var toolsval = $(this).val();
+                        if (toolsval.toString() != "") {
+                            vallist.push(toolsval);
+                        }
+                    });
+                    if (vallist.length > 0) {
+                        toolslist.push(vallist);
+                    } else {
+                        vallist.push("N/A");
+                        toolslist.push(vallist);
+                    }
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getTools',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(toolslist),
+                    success: function (data) {
+                        console.log(data);
+                        if (type == "INIT" && data.toolsList.length > 0) {
+                            for (var i = 0; i < data.toolsList.length; i++) {
+                                if (toolsSaveList.indexOf(data.toolsList[i]) < 0) {
+                                    var navlist = $('#toolsList');
+                                    var b = document.createElement('button');
+                                    b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                    b.setAttribute('value', data.toolsList[i]);
+                                    b.setAttribute('onclick', 'saveTools("GET","' + data.toolsList[i] + '");');
+                                    b.innerHTML = data.toolsList[i];
+                                    navlist.append(b);
+                                    toolsSaveList.push(data.toolsList[i]);
+                                }
+                            }
+                        }
+                        if (type == "POST") {
+                            if (toolsSaveList.indexOf(Toolssaveas) < 0) {
+                                var navlist = $('#toolsList');
+                                var b = document.createElement('button');
+                                b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                b.setAttribute('value', Toolssaveas);
+                                b.setAttribute('onclick', 'saveTools("GET","' + Toolssaveas.toString() + '");');
+                                b.innerHTML = Toolssaveas.toString();
+                                navlist.append(b);
+                                toolsSaveList.push(Toolssaveas);
+                            }
+                            alert("Saved");
+                            reset('Tools');
+                        }
+                        if (type == "GET") {
+                            $('input[name=ToolsRadio][value="' + data.toolsdetails.desc.kind.toString() + '"]').prop('checked', true)
+                            if (data.toolsdetails.desc.kind.toString() === "Software") {
+                                $('#PackageName').val(data.toolsdetails.desc.packageName);
+                                $('#ProgramName').val(data.toolsdetails.desc.programName);
+                                $('#Version').val(data.toolsdetails.desc.version);
+                                $('#ToolsUrls').val(data.toolsdetails.desc.URLs);
+                                $('#Software').css("display", "block");
+                                $('#Experiment').css("display", "none");
+                            }
+                            if (data.toolsdetails.desc.kind.toString() === "Experiment") {
+                                $('#FacilityName').val(data.toolsdetails.desc.facilityName);
+                                $('#Measurement').val(data.toolsdetails.desc.measurement);
+                                $('#ToolsEUrls').val(data.toolsdetails.desc.ExpURLs);
+                                $('#Software').css("display", "none");
+                                $('#Experiment').css("display", "block");
+                            }
+                            $('#Toolssaveas').val(data.toolsdetails.desc.saveas);
+                            $(".toolslabel").each(function () {
+                                $(this).val(data.toolsdetails.desc.extras);
+                            });
+                            toolslist.push(lablist);
+                            $(".toolsval").each(function () {
+                                $(this).val(data.toolsdetails.desc.extras);
+                            });
+                            if (data.toolsdetails.desc.saveas != "") {
+                                $('#DeleteTools').show();
+                            } else {
+                                $('#DeleteTools').hide();
+                            }
+                            $('#DeleteTools').attr('onclick', 'deleteTools("' + data.toolsdetails.desc.saveas.toString() + '")');
+                        }
+                    }
+                });
+            }
+
+
+            function deleteTools(saveas) {
+                var dellist = [];
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delTools',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                        var index = toolsSaveList.indexOf(saveas);
+                        toolsSaveList.splice(index, 1);
+                        $('.deletable').remove();
+                        for (var i = 0; i < toolsSaveList.length; i++) {
+                            var navlist = $('#toolsList');
+                            var b = document.createElement('button');
+                            b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                            b.setAttribute('value', toolsSaveList[i]);
+                            b.setAttribute('onclick', 'saveTools("GET","' + toolsSaveList[i] + '");');
+                            b.innerHTML = toolsSaveList[i].toString();
+                            navlist.append(b);
+                        }
+                        reset('Tools');
+                    }
+                });
+            }
+
+
+            var datasetsSaveList = [];
+            function saveDatasets(type, saveas) {
+                var type = type;
+                var DatasetsFiles = "";
+                var DatasetsDescription = "";
+                var DatasetsUrls = "";
+                var Datasetssaveas = "";
+                var lablist = [];
+                var vallist = [];
+                if (type == 'POST') {
+                    Datasetssaveas = $('#Datasetssaveas').val();
+                } else {
+                    Datasetssaveas = saveas;
+                }
+                var datasetslist = [];
+                datasetslist.push(pid);
+                datasetslist.push(type);
+                if (Datasetssaveas.toString() != "")
+                    datasetslist.push(Datasetssaveas);
+                else {
+                    Datasetssaveas = "N/A";
+                    datasetslist.push(Datasetssaveas);
+                }
+
+                DatasetsFiles = $('#DatasetsFiles').val();
+                DatasetsDescription = $('#DatasetsDescription').val();
+                DatasetsUrls = $('#DatasetsUrls').val();
+                if (DatasetsFiles.toString() != "")
+                    datasetslist.push(DatasetsFiles);
+                if (DatasetsDescription.toString() != "")
+                    datasetslist.push(DatasetsDescription);
+                if (DatasetsUrls.toString() != "")
+                    datasetslist.push(DatasetsUrls);
+                $(".datasetslistlabel").each(function () {
+                    var label = $(this).val();
+                    if (label.toString() != "") {
+                        lablist.push(label);
+                    }
+                });
+                if (lablist.length > 0) {
+                    datasetslist.push(lablist);
+                } else {
+                    lablist.push("N/A");
+                    datasetslist.push(lablist);
+                }
+                $(".datasetsval").each(function () {
+                    var datasetsval = $(this).val();
+                    if (datasetsval.toString() != "") {
+                        vallist.push(datasetsval);
+                    }
+                });
+                if (vallist.length > 0) {
+                    datasetslist.push(vallist);
+                } else {
+                    vallist.push("N/A");
+                    datasetslist.push(vallist);
+                }
+
+
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getDatasets',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(datasetslist),
+                    success: function (data) {
+                        console.log(data);
+                        if (type == "INIT" && data.datasetslist.length > 0) {
+                            for (var i = 0; i < data.datasetslist.length; i++) {
+                                if (datasetsSaveList.indexOf(data.datasetslist[i]) < 0) {
+                                    var navlist = $('#datasetsList');
+                                    var b = document.createElement('button');
+                                    b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                    b.setAttribute('value', data.datasetslist[i]);
+                                    b.setAttribute('onclick', 'saveDatasets("GET","' + data.datasetslist[i] + '");');
+                                    b.innerHTML = data.datasetslist[i];
+                                    navlist.append(b);
+                                    datasetsSaveList.push(data.datasetslist[i]);
+                                }
+                            }
+                        }
+                        if (type == "POST") {
+                            if (datasetsSaveList.indexOf(Datasetssaveas) < 0) {
+                                var navlist = $('#datasetsList');
+                                var b = document.createElement('button');
+                                b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                b.setAttribute('value', Datasetssaveas);
+                                b.setAttribute('onclick', 'saveDatasets("GET","' + Datasetssaveas.toString() + '");');
+                                b.innerHTML = Datasetssaveas.toString();
+                                navlist.append(b);
+                                datasetsSaveList.push(Datasetssaveas);
+                            }
+                            reset('Datasets');
+                            alert("Saved");
+                        }
+                        if (type == "GET") {
+                            $('#DatasetsFiles').val(data.datasetsdetails.desc.files);
+                            $('#DatasetsDescription').val(data.datasetsdetails.desc.readme);
+                            $('#DatasetsUrls').val(data.datasetsdetails.desc.URLs);
+                            $('#Datasetssaveas').val(data.datasetsdetails.desc.saveas);
+                            $(".datasetslabel").each(function () {
+                                $(this).val(data.datasetsdetails.desc.extras);
+                            });
+                            datasetslist.push(lablist);
+                            $(".datasetsval").each(function () {
+                                $(this).val(data.datasetsdetails.desc.extras);
+                            });
+                            if (data.datasetsdetails.desc.saveas != "") {
+                                $('#DeleteDatasets').show();
+                            } else {
+                                $('#DeleteDatasets').hide();
+                            }
+                            $('#DeleteDatasets').attr('onclick', 'deleteDatasets("' + data.datasetsdetails.desc.saveas.toString() + '")');
+                        }
+                    }
+                });
+            }
+
+
+            function deleteDatasets(saveas) {
+                var dellist = [];
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delDatasets',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                        var index = datasetsSaveList.indexOf(saveas);
+                        datasetsSaveList.splice(index, 1);
+                        $('.deletable').remove();
+                        for (var i = 0; i < datasetsSaveList.length; i++) {
+                            var navlist = $('#datasetsList');
+                            var b = document.createElement('button');
+                            b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                            b.setAttribute('value', datasetsSaveList[i]);
+                            b.setAttribute('onclick', 'saveDatasets("GET","' + datasetsSaveList[i] + '");');
+                            b.innerHTML = datasetsSaveList[i].toString();
+                            navlist.append(b);
+                        }
+                        reset('Datasets');
+                    }
+                });
+            }
+
+            var scriptsSaveList = [];
+            function saveScripts(type, saveas) {
+                var type = type;
+                var ScriptsFiles = "";
+                var ScriptsDescription = "";
+                var ScriptsUrls = "";
+                var Scriptssaveas = "";
+                var lablist = [];
+                var vallist = [];
+                if (type == 'POST') {
+                    Scriptssaveas = $('#Scriptssaveas').val();
+                } else {
+                    Scriptssaveas = saveas;
+                }
+                var scriptslist = [];
+                scriptslist.push(pid);
+                scriptslist.push(type);
+                if (Scriptssaveas.toString() != "")
+                    scriptslist.push(Scriptssaveas);
+                else {
+                    Scriptssaveas = "N/A";
+                    scriptslist.push(Scriptssaveas);
+                }
+
+                ScriptsFiles = $('#ScriptsFiles').val();
+                ScriptsDescription = $('#ScriptsDescription').val();
+                ScriptsUrls = $('#ScriptsUrls').val();
+                if (ScriptsFiles.toString() != "")
+                    scriptslist.push(ScriptsFiles);
+                if (ScriptsDescription.toString() != "")
+                    scriptslist.push(ScriptsDescription);
+                if (ScriptsUrls.toString() != "")
+                    scriptslist.push(ScriptsUrls);
+                $(".scriptslistlabel").each(function () {
+                    var label = $(this).val();
+                    if (label.toString() != "") {
+                        lablist.push(label);
+                    }
+                });
+                if (lablist.length > 0) {
+                    scriptslist.push(lablist);
+                } else {
+                    lablist.push("N/A");
+                    scriptslist.push(lablist);
+                }
+                $(".scriptsval").each(function () {
+                    var scriptsval = $(this).val();
+                    if (scriptsval.toString() != "") {
+                        vallist.push(scriptsval);
+                    }
+                });
+                if (vallist.length > 0) {
+                    scriptslist.push(vallist);
+                } else {
+                    vallist.push("N/A");
+                    scriptslist.push(vallist);
+                }
+
+
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getScripts',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(scriptslist),
+                    success: function (data) {
+                        console.log(data);
+                        if (type == "INIT" && data.scriptlist.length > 0) {
+                            for (var i = 0; i < data.scriptlist.length; i++) {
+                                if (scriptsSaveList.indexOf(data.scriptlist[i]) < 0) {
+                                    var navlist = $('#scriptsList');
+                                    var b = document.createElement('button');
+                                    b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                    b.setAttribute('value', data.scriptlist[i]);
+                                    b.setAttribute('onclick', 'saveScripts("GET","' + data.scriptlist[i] + '");');
+                                    b.innerHTML = data.scriptlist[i];
+                                    navlist.append(b);
+                                    scriptsSaveList.push(data.scriptlist[i]);
+                                }
+                            }
+                        }
+                        if (type == "POST") {
+                            if (scriptsSaveList.indexOf(Scriptssaveas) < 0) {
+                                var navlist = $('#scriptsList');
+                                var b = document.createElement('button');
+                                b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                                b.setAttribute('value', Scriptssaveas);
+                                b.setAttribute('onclick', 'saveScripts("GET","' + Scriptssaveas.toString() + '");');
+                                b.innerHTML = Scriptssaveas.toString();
+                                navlist.append(b);
+                                scriptsSaveList.push(Scriptssaveas);
+                            }
+                            reset('Scripts');
+                            alert("Saved");
+                        }
+                        if (type == "GET") {
+                            $('#ScriptsFiles').val(data.scriptsdetails.desc.files);
+                            $('#ScriptsDescription').val(data.scriptsdetails.desc.readme);
+                            $('#ScriptsUrls').val(data.scriptsdetails.desc.URLs);
+                            $('#Scriptssaveas').val(data.scriptsdetails.desc.saveas);
+                            $(".scriptslabel").each(function () {
+                                $(this).val(data.scriptsdetails.desc.extras);
+                            });
+                            scriptslist.push(lablist);
+                            $(".scriptsval").each(function () {
+                                $(this).val(data.scriptsdetails.desc.extras);
+                            });
+                            if (data.scriptsdetails.desc.saveas != "") {
+                                $('#DeleteScripts').show();
+                            } else {
+                                $('#DeleteScripts').hide();
+                            }
+                            $('#DeleteScripts').attr('onclick', 'deleteScripts("' + data.scriptsdetails.desc.saveas.toString() + '")');
+                        }
+                    }
+                });
+            }
+
+
+            function deleteScripts(saveas) {
+                var dellist = [];
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delScripts',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                        var index = scriptsSaveList.indexOf(saveas);
+                        scriptsSaveList.splice(index, 1);
+                        $('.deletable').remove();
+                        for (var i = 0; i < scriptsSaveList.length; i++) {
+                            var navlist = $('#scriptsList');
+                            var b = document.createElement('button');
+                            b.setAttribute('class', 'btn btn-lg btn-primary deletable');
+                            b.setAttribute('value', scriptsSaveList[i]);
+                            b.setAttribute('onclick', 'saveScripts("GET","' + scriptsSaveList[i] + '");');
+                            b.innerHTML = scriptsSaveList[i].toString();
+                            navlist.append(b);
+                        }
+                        reset('Scripts');
+                    }
+                });
+            }
+
+
+
+
+            var referenceSaveList = [];
+            function saveReference(type, saveas) {
+                var type = type;
+                var Kind = $('#Kind').val();
+
+                
+                var fnamelist = [];
+                var mnamelist = [];
+                var lnamelist = [];
+
+                $(".authorfname").each(function () {
+                    var firstname = $(this).val();
+                    if (firstname.toString() != "") {
+                        fnamelist.push(firstname);
+                    }
+                });
+
+
+
+
+
+
+                $(".authormname").each(function () {
+                    var mname = $(this).val();
+                    if (mname.toString() != "") {
+                        mnamelist.push(mname);
+                    } else {
+                        mnamelist.push("N/A");
+                    }
+                });
+                
+                $(".authorlname").each(function () {
+                    var lname = $(this).val();
+                    if (lname.toString() != "") {
+                        lnamelist.push(lname);
+                    }
+                });
+
+                var Title = $('#RefTitle').val();
+                var JournalFull = $('#JournalFull').val();
+                var JournalAbbr = $('#JournalAbbr').val();
+                var Volume = $('#Volume').val();
+                var Page = $('#Page').val();
+                var Year = $('#Year').val();
+                var DOI = $('#DOI').val();
+                var Abstract = $('#Abstract').val();
+                var referenceUrls = $('#referenceUrls').val();
+				var PublishedDate = $('#PublishedDate').val();
+                var ReceivedDate = $('#ReceivedDate').val();
+                var referenceSaveas = "";
+                var lablist = [];
+                var vallist = [];
+                if (type == 'POST') {
+                    referenceSaveas = $('#referenceSaveas').val();
+                } else {
+                    referenceSaveas = saveas;
+                }
+                var referencelist = [];
+                referencelist.push(pid);
+                referencelist.push(type);
+                if (referenceSaveas.toString() != "")
+                    referencelist.push(referenceSaveas);
+                else {
+                    referenceSaveas = "N/A";
+                    referencelist.push(referenceSaveas);
+                }
+
+
+
+
+
+
+
+
+
+
+                if (Kind.toString() !== "" && (Kind.toLowerCase() === "article" || Kind.toLowerCase() === "paper")){
+                    var diverror = $('#errors');
+                    diverror.empty();
+                    referencelist.push(Kind.toLowerCase());
+                }
+                else {
+                    var diverror = $('#errors');
+                    diverror.append("<div class='form-style-2 centrist'> <font color='red'> Kind Should be Article or Paper </font></div>");
+                    return;
+                }
+				if (fnamelist.length > 0)
+                    referencelist.push(fnamelist);
+                if (mnamelist.length > 0)
+                    referencelist.push(mnamelist);
+                if (lnamelist.length > 0)
+                    referencelist.push(lnamelist);
+                
+                if (Title.toString() !== "")
+                    referencelist.push(Title);
+                if (JournalFull.toString() !== "")
+                    referencelist.push(JournalFull);
+                if (JournalAbbr.toString() !== "")
+                    referencelist.push(JournalAbbr);
+                if (Volume.toString() !== "")
+                    referencelist.push(Volume);
+                if (Page.toString() !== "")
+                    referencelist.push(Page);
+                if (Year.toString() !== "")
+                    referencelist.push(Year);
+				if (PublishedDate.toString() !== "")
+                    referencelist.push(PublishedDate);
+                else {
+                    referencelist.push("N/A");
+                }
+                if (ReceivedDate.toString() !== "")
+                    referencelist.push(ReceivedDate);
+                else {
+                    referencelist.push("N/A");
+                }
+                if (DOI.toString() !== "")
+                    referencelist.push(DOI);
+                else {
+                    referencelist.push("N/A");
+                }
+                if (Abstract.toString() !== "")
+                    referencelist.push(Abstract);
+                else {
+                    referencelist.push("N/A");
+                }
+                if (referenceUrls.toString() !== "")
+                    referencelist.push(referenceUrls);
+                else {
+                    referencelist.push("N/A");
+                }
+                $(".referencelabel").each(function () {
+                    var label = $(this).val();
+                    if (label.toString() != "") {
+                        lablist.push(label);
+                    }
+                });
+                if (lablist.length > 0) {
+                    referencelist.push(lablist);
+                } else {
+                    lablist.push("N/A");
+                    referencelist.push(lablist);
+                }
+                $(".referenceval").each(function () {
+                    var referenceval = $(this).val();
+                    if (referenceval.toString() != "") {
+                        vallist.push(referenceval);
+                    }
+                });
+                if (vallist.length > 0) {
+                    referencelist.push(vallist);
+                } else {
+                    vallist.push("N/A");
+                    referencelist.push(vallist);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/getReference',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8", data: JSON.stringify(referencelist),
+
+                    success: function (data) {
+                        console.log(data);
+                        if (type === "POST")
+                            alert("Saved");
+                        if (type === "GET" || type === "POST") {
+                            if (data.refList.length > 0) {
+                            $('#Kind').val(data.referencedetails.desc.kind);
+                            for (var i = 0; i < data.referencedetails.desc.authors.length; i++) {
+                                    $("authorfname" + i).val(data.referencedetails.desc.authors[i].firstName);
+                                    $("authormname" + i).val(data.referencedetails.desc.authors[i].middleName);
+                                    $("authormname" + i).val(data.referencedetails.desc.authors[i].lastName);
+                            }
+                            $('#RefTitle').val(data.referencedetails.desc.title);
+                            $('#JournalFull').val(data.referencedetails.desc.journal.fullName);
+                            $('#JournalAbbr').val(data.referencedetails.desc.journal.abbrevName);
+                            $('#Volume').val(data.referencedetails.desc.volume);
+                            $('#Page').val(data.referencedetails.desc.page);
+                            $('#Year').val(data.referencedetails.desc.year);
+                            $('#PublishedDate').val(data.referencedetails.desc.publishedDate);
+                            $('#ReceivedDate').val(data.referencedetails.desc.receivedDate);
+                            $('#DOI').val(data.referencedetails.desc.DOI);
+                            $('#Abstract').val(data.referencedetails.desc.publishedAbstract);
+                            $('#referenceUrls').val(data.referencedetails.desc.URLs);
+                            $('#referenceSaveas').val(data.referencedetails.desc.saveas);
+                            $(".referencelabel").each(function () {
+                                $(this).val(data.referencedetails.desc.extras);
+                            });
+                            referencelist.push(lablist);
+                            $(".referenceval").each(function () {
+                                $(this).val(data.referencedetails.desc.extras);
+                            });
+                            if (data.referencedetails.desc.saveas != "") {
+                                $('#DeleteReference').show();
+                            } else {
+                                $('#DeleteReference').hide();
+                            }
+                            $('#DeleteReference').attr('onclick', 'deleteReference("' + data.referencedetails.desc.saveas.toString() + '")');
+                          }
+                        }
+                    }
+                });
+            }
+
+
+            function deleteReference(saveas) {
+                var dellist = [];
+                dellist.push(pid);
+                dellist.push(saveas);
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://fire.uchicago.edu:5000/delReference',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(dellist),
+                    success: function (data) {
+                         reset('Reference');
+                    }
+                });
+            }
+
+            $(function () {
+                $('.formelements').css("display", "none");
+                $('.kindelements').css("display", "none");
+                $(document).tooltip();
+                $("input[name='ToolsRadio']").click(function () {
+                    var test = $(this).val();
+                    if (test === 'Software') {
+                        $('#Software').css("display", "block");
+                        $('#Experiment').css("display", "none");
+                        $('.mandatesofttools').bind("keyup focusin", function () {
+
+                            var empty = false;
+                            $('.mandatesofttools').each(function () {
+                                if ($(this).val() == '') {
+                                    empty = true;
+                                }
+                            });
+                            if (empty) {
+                                $('#Savetools').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                            } else {
+                                $('#Savetools').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                            }
+                        });
+                    }
+                    if (test === 'Experiment') {
+                        $('#Experiment').css("display", "block");
+                        $('#Software').css("display", "none");
+                        $('.mandateexptools').bind("keyup focusin", function () {
+
+                            var empty = false;
+                            $('.mandateexptools').each(function () {
+                                if ($(this).val() == '') {
+                                    empty = true;
+                                }
+                            });
+                            if (empty) {
+                                $('#Savetools').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                            } else {
+                                $('#Savetools').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                            }
+                        });
+                    }
+                });
+                $('#treelist').change(function () {
+                    pid = $("#pid").val();
+                    $('.formelements').css("display", "none");
+                    if ($('#treelist').val() === 'Info') {
+                        saveInfo('GET', '');
+                        $('#Info').css("display", "block");
+                        $('#Saveinfo').attr('disabled', 'disabled');
+                    }
+                    if ($('#treelist').val() === 'Charts') {
+                        saveCharts('INIT', '');
+                        $('#Charts').css("display", "block");
+                        reset('Charts');
+                        $('#Savecharts').attr('disabled', 'disabled');
+                    }
+                    if ($('#treelist').val() === 'Tools') {
+                        saveTools('INIT', '');
+                        $('#Tools').css("display", "block");
+                        reset('Tools');
+                        var Kind = $("input[name='ToolsRadio']:checked").val();
+                        console.log("kind>" + Kind);
+                        if (Kind === 'Software') {
+                            $('#Software').css("display", "block");
+                            $('#Experiment').css("display", "none");
+                        }
+                        if (Kind === 'Experiment') {
+                            $('#Experiment').css("display", "block");
+                            $('#Software').css("display", "none");
+                        }
+                        $('#Savetools').attr('disabled', 'disabled');
+                    }
+                    if ($('#treelist').val() === 'Datasets') {
+                        saveDatasets('INIT', '');
+                        $('#Datasets').css("display", "block");
+                        reset('Datasets');
+                        $('#Savedatasets').attr('disabled', 'disabled');
+                    }
+                    if ($('#treelist').val() === 'Scripts') {
+                        saveScripts('INIT', '');
+                        $('#Scripts').css("display", "block");
+                        reset('Scripts');
+                        $('#Savescripts').attr('disabled', 'disabled');
+                    }
+                    if ($('#treelist').val() === 'Reference') {
+                        saveReference('GET', '');
+                        $('#Reference').css("display", "block");
+                        reset('Reference');
+						$('#PublishedDate').datetimepicker({
+                            mask: true // '9999/19/39 29:59' - digit is the maximum possible for a cell
+                        });
+                        $('#ReceivedDate').datetimepicker({
+                            mask: true // '9999/19/39 29:59' - digit is the maximum possible for a cell
+                        });
+                        $('#Savereference').attr('disabled', 'disabled');
+                    }
+                });
+                $('.mandateinfo').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandateinfo').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Saveinfo').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Saveinfo').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+                $('.mandatecharts').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandatecharts').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Savecharts').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Savecharts').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+                $('.mandatetools').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandatetools').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Savetools').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Savetools').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+                $('.mandatedatasets').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandatedatasets').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Savedatasets').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Savedatasets').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+                $('.mandatescripts').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandatescripts').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Savescripts').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Savescripts').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+                $('.mandatereference').bind("keyup focusin", function () {
+
+                    var empty = false;
+                    $('.mandatereference').each(function () {
+                        if ($(this).val() == '') {
+                            empty = true;
+                        }
+                    });
+                    if (empty) {
+                        $('#Savereference').attr('disabled', 'disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    } else {
+                        $('#Savereference').removeAttr('disabled'); // updated according to http://stackoverflow.com/questions/7637790/how-to-remove-disabled-attribute-with-jquery-ie
+                    }
+                });
+            });</script>
+    </head>
+    <body>
+        <div>
+            <div id="tree" style="width: 40%; float: left;">
+            </div>
+        </div>
+        <div style="width: 10%">
+        </div>
+        <div id = "menulist" style="width: 50%; float: right; margin-right: 20px; margin-left: 10px;">
+            <div>
+                <form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <label for="nodeParent">Node Parent:</label>
+                    <select id="treelist" style="width: 100%; display: block;">
+                        <option value="Default"></option>
+                        <option value="Info">Info</option>
+                        <option value="Charts">Charts</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Datasets">Datasets</option>
+                        <option value="Scripts">Scripts</option>
+                        <option value="Reference">Reference</option>
+                    </select>
+                </form>
+            </div>
+            <div style="margin-top: 20px;">
+                <div id="Info" class="formelements">
+                    <div class="form-style-2-heading">Add New Info</div>
+                    <label id="infoList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label id="pifield1" for="field1"><span>First Name of PI<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield1');"></a></span><input type="text" class="form-control disabler textstatic pifname mandateinfo"  id="pifname0" value="" placeholder="Enter First Name of PI" required/></label>
+                            <br/>
+                            <label id="pifield2" for="field2"><span>Middle Name  of PI<a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield2');"></a></span><input type="text" class="form-control disabler textstatic pimname"  id="pimname0" value="" placeholder="Enter Middle Name of PI"/></label>
+                            <br/>
+                            <label id="pifield3" for="field3"><span>Last Name  of PI<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('pifield3');"></a></span><input type="text" class="form-control disabler textstatic pilname mandateinfo"  id="pilname0" value="" placeholder="Enter Last Name of PI"/></label>
+                            <br/>
+                            <label for="field4"><span>Collections<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateinfo"  id="collections" value="" placeholder="Enter Collection to which Project belongs"/></label>
+                            <br/>
+                            <label for="field5"><span>Tags<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateinfo"  id="tags" value="" placeholder="Enter Tags for the project"/></label>
+                            <br/>
+                            <label for="field6"><span>Main Notebook File</span><input type="text" class="form-control textstatic"  id="infonotebookfile" value="" title="Check elements from tree you want to add to this text box" placeholder="Enter Main Notebook File Name"/></label>
+                            <br/>
+                            <label for="field6"><span>Globus Id<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateinfo"  id="globusid" value="" placeholder="Enter Globus Id"/></label>
+                            <br/>
+                            <label for="field7"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateinfo"  id="InfoSaveas" value="" title="Save Info As (Unique for every Info)" placeholder="Save Info As" required/></label>
+                            <br/>
+                            <label for="field8"><span>Extra Fields</span></label>
+                            <div id="extraInfoFields">
+
+                            </div> 
+                            <br/>
+                            <label for="buttons">
+                                <input type="button" id="Saveinfo" class="btn btn-lg btn-primary" value="Save" onclick="saveInfo('POST','');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Info');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Info');"/>
+                                <input type="button" id="DeleteInfo" class="btn btn-lg btn-primary" value="Delete Info"/>
+
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Charts" class="formelements">
+                    <div class="form-style-2-heading">Add New Charts</div>
+                    <label id="chartsList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Kind<span class="required">*</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="ChartsRadio" value="Figure"> Figure <input type="radio" name="ChartsRadio" value="Table"> Table</label>
+                            <br/>
+                            <label for="field2"><span>Caption<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatecharts"  id="Caption" value="" placeholder="Enter Caption for Chart"/></label>
+                            <br/>
+                            <label for="field3"><span>Number<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatecharts"  id="Number" value="" placeholder="Enter Number for Chart" required/></label>
+                            <br/>
+                            <label for="field4"><span>Files<span class="required">*</span></span><input type="text" class="form-control textstatic mandatecharts"  id="CFiles" value="" placeholder="Add Files Using Checkbox"/></label>
+                            <br/>
+                            <label for="field5"><span>Image Files<span class="required">*</span></span><input type="text" class="form-control textstatic mandatecharts"  id="CImagefiles" value="" placeholder="Add Image File Using Checkbox" required/></label>
+                            <br/>
+                            <label for="field6"><span>Notebook File<span class="required">*</span></span><input type="text" class="form-control textstatic mandatecharts"  id="CNotebookfile" value="" placeholder="Add Notebook File Using Checkbox"/></label>
+                            <br/>
+                            <label for="field7"><span>Properties<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatecharts"  id="CProperties" value="" placeholder="Add Properties of Chart" required/></label>
+                            <br/>
+                            <label for="field8"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatecharts"  id="CSaveas" value="" title="Save Chart Info As (Unique for every Chart)" placeholder="Save Chart Info As" required/></label>
+                            <br/>
+                            <label for="field9"><span>Extra Fields</span></label>
+                            <div id="extraChartsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Savecharts" value="Save" onclick="saveCharts('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Charts');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Charts');"/>
+                                <input type="button" id="DeleteChart" class="btn btn-lg btn-primary" value="Delete Chart"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Tools" class="formelements">
+                    <div class="form-style-2-heading">Add New Tools</div>
+                    <label id="toolsList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Kind<span class="required">*</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="ToolsRadio" value="Software"> Software <input type="radio" name="ToolsRadio" value="Experiment"> Experiment</label>
+                            <br/>
+                            <div id="Software">
+                                <label for="field2"><span>Package Name<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatesofttools"  id="PackageName" value="" placeholder="Enter Package Name for Software Tools"/></label>
+                                <br/>
+                                <label for="field3"><span>Program Name<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatesofttools"  id="ProgramName" value="" placeholder="Enter Program Name for Software Tools" required/></label>
+                                <br/>
+                                <label for="field4"><span>Version<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatesofttools"  id="Version" value="" placeholder="Enter Version for Software Tools"/></label>
+                                <br/>
+                                <label for="field5"><span>URLs</span><input type="text" class="form-control textstatic disabler"  id="ToolsUrls" value="" placeholder="Enter Urls for Software Tools" required/></label>
+                                <br/>
+                            </div>
+                            <br/>
+                            <div id="Experiment">
+                                <label for="field6"><span>Facility Name<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateexptools"  id="FacilityName" value="" placeholder="Enter Facility Name for Experiment Tools"/></label>
+                                <br/>
+                                <label for="field7"><span>Measurement<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandateexptools"  id="Measurement" value="" placeholder="Enter Measurement for Experiment Tools" required/></label>
+                                <br/>
+                                <label for="field8"><span>URLs</span><input type="text" class="form-control disabler textstatic mandate"  id="ToolsEUrls" value="" placeholder="Enter Urls for Experiment Tools" required/></label>
+                                <br/>
+                            </div>
+                            <label for="field9"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatetools"  id="Toolssaveas" value="" title="Save Tools Save As (Unique for every Tools)" placeholder="Save Tools As" required/></label>
+                            <label for="field10"><span>Extra Fields</span></label>
+                            <div id="extraToolsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Savetools" value="Save" onclick="saveTools('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Tools');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Tools');"/>
+                                <input type="button" id="DeleteTools" class="btn btn-lg btn-primary" value="Delete Tools"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Datasets" class="formelements">
+                    <div class="form-style-2-heading">Add New Datasets</div>
+                    <label id="datasetsList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Files<span class="required">*</span></span><input type="text" class="form-control textstatic mandatedatasets"  id="DatasetsFiles" value="" placeholder="Enter Files for Datasets" title="Add To Notebook File Using Checkbox"/></label>
+                            <br/>
+                            <label for="field2"><span>Description<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatedatasets"  id="DatasetsDescription" value="" placeholder="Enter Description For Datasets" required/></label>
+                            <br/>
+                            <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="DatasetsUrls" value="" placeholder="Enter Urls for Datasets"/></label>
+                            <br/>
+                            <label for="field4"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatedatasets"  id="Datasetssaveas" value="" title="Save Datasets Save As (Unique for every Dataset)" placeholder="Save Dataset As" required/></label>
+                            <label for="field5"><span>Extra Fields</span></label>
+                            <div id="extraDatasetsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Savedatasets" value="Save" onclick="saveDatasets('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Datasets');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Datasets');"/>
+                                <input type="button" id="DeleteDatasets" class="btn btn-lg btn-primary" value="Delete Datasets"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Scripts" class="formelements">
+                    <div class="form-style-2-heading">Add New Scripts</div>
+                    <label id="scriptsList">
+                    </label>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Files<span class="required">*</span></span><input type="text" class="form-control textstatic mandatescripts"  id="ScriptsFiles" value="" placeholder="Enter Files for Scripts"/></label>
+                            <br/>
+                            <label for="field2"><span>Description<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatescripts"  id="ScriptsDescription" value="" placeholder="Enter Description For Scripts" required/></label>
+                            <br/>
+                            <label for="field3"><span>URLs</span><input type="text" class="form-control textstatic"  id="ScriptsUrls" value="" placeholder="Enter Urls for Scripts"/></label>
+                            <br/>
+                            <label for="field4"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatescripts"  id="Scriptssaveas" value="" title="Save Scripts As (Unique for every Script)" placeholder="Save Script As" required/></label>
+                            <label for="field4"><span>Extra Fields</span></label>
+                            <div id="extraScriptsFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Savescripts" value="Save" onclick="saveScripts('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Scripts');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Scripts');"/>
+                                <input type="button" id="DeleteScripts" class="btn btn-lg btn-primary" value="Delete Scripts"/>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div id="Reference" class="formelements">
+                    <div class="form-style-2-heading">Add New Reference</div>
+                    <form>
+                        <div class="form-group">
+                            <label for="field1"><span>Kind<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="Kind" value="" placeholder="Enter Kind for Reference"/></label>
+                            <br/>
+                            <label id="authorfield1" for="field1"><span>First Name of Author<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('authorfield1');"></a></span><input type="text" class="form-control disabler textstatic authorfname mandatereference"  id="authorfname0" value="" placeholder="Enter First Name of Author" required/></label>
+                            <br/>
+                            <label id="authorfield2" for="field2"><span>Middle Name  of Author<a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('authorfield2');"></a></span><input type="text" class="form-control disabler textstatic authormname"  id="authormname0" value="" placeholder="Enter Middle Name of Author"/></label>
+                            <br/>
+                            <label id="authorfield3" for="field3"><span>Last Name  of Author<span class="required">*</span><a href="javascript:void(0);" class="ui-icon ui-icon-plus" onclick="addField('authorfield3');"></a></span><input type="text" class="form-control disabler textstatic authorlname mandatereference"  id="authorlname0" value="" placeholder="Enter Last Name of Author"/></label>
+                            <br/>
+                            <label for="field3"><span>Title<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="RefTitle" value="" placeholder="Enter Title for Reference"/></label>
+                            <br/>
+                            <label for="field4"><span>Journal Full<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="JournalFull" value="" placeholder="Enter Full Journal Name For Reference"/></label>
+                            <br/>
+                            <label for="field5"><span>Journal Abbr<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="JournalAbbr" value="" placeholder="Enter Journal Abbr For Reference"/></label>
+                            <br/>
+                            <label for="field6"><span>Volume<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="Volume" value="" placeholder="Enter Volume of Journal For Reference"/></label>
+                            <br/>
+                            <label for="field7"><span>Page<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="Page" value="" placeholder="Enter Page For Reference"/></label>
+                            <br/>
+                            <label for="field8"><span>Year<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="Year" value="" placeholder="Enter Year For Reference"/></label>
+                            <br/>
+                            <label for="field9"><span>Published Date</span><input type="text" class="form-control disabler textstatic"  id="PublishedDate" value="" placeholder="Enter Published Date of Paper/Article"/></label>
+                            <br/>
+                            <label for="field10"><span>Received Date</span><input type="text" class="form-control disabler textstatic"  id="ReceivedDate" value="" placeholder="Enter Received Date of Reference/Article"/></label>
+                            <br/>
+                            <label for="field11"><span>DOI</span><input type="text" class="form-control disabler textstatic"  id="DOI" value="" placeholder="Enter DOI For Reference"/></label>
+                            <br/>
+                            <label for="field12"><span>Abstract</span><input type="text" class="form-control disabler textstatic"  id="Abstract" value="" placeholder="Enter Abstract For Reference"/></label>
+                            <br/>
+
+                            <label for="field13"><span>URLs</span><input type="text" class="form-control textstatic"  id="referenceUrls" value="" placeholder="Enter Reference Urls"/></label>
+                            <br/>
+                            <label for="field14"><span>Save As<span class="required">*</span></span><input type="text" class="form-control disabler textstatic mandatereference"  id="referenceSaveas" value="" title="Save Reference As (Unique for every Reference)" placeholder="Save Reference As" required/></label>
+                            <br/>
+                            <label for="field15"><span>Extra Fields</span></label>
+                            <div id="extraReferenceFields">
+
+                            </div> 
+                            <label for="buttons">
+                                <input type="button" class="btn btn-lg btn-primary" id="Savereference" value="Save" onclick="saveReference('POST', 'None');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Add New Fields" onclick="addNewFields('Reference');"/>
+                                <input type="button" class="btn btn-lg btn-primary" value="Delete New Fields" onclick="removeNewFields('Reference');"/>
+                                <input type="button" id="DeleteReference" class="btn btn-lg btn-primary" value="Delete Reference"/>
+                            </label>
+                        </div>
+                     </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

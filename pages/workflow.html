@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            #divLegends {
+                width: 100px;
+                height: 395px;
+                border: 1px solid lightgray;
+                margin: 20%;
+            }
+            body, select {
+                font: 10pt sans;
+            }
+            #mynetwork {
+                position:relative;
+                width: 800px;
+                height: 600px;
+                border: 1px solid lightgray;
+            }
+            table.legend_table {
+                font-size: 11px;
+                border-width:1px;
+                border-color:#d3d3d3;
+                border-style:solid;
+            }
+            table.legend_table,td {
+                border-width:1px;
+                border-color:#d3d3d3;
+                border-style:solid;
+                padding: 2px;
+            }
+            div.table_content {
+                width:80px;
+                text-align:center;
+            }
+            div.table_description {
+                width:100px;
+            }
+
+            #operation {
+                font-size:28px;
+            }
+            #node-popUp {
+                display:none;
+                position:absolute;
+                top:350px;
+                left:170px;
+                z-index:299;
+                width:250px;
+                height:120px;
+                background-color: #f9f9f9;
+                border-style:solid;
+                border-width:3px;
+                border-color: #5394ed;
+                padding:10px;
+                text-align: center;
+            }
+            #edge-popUp {
+                display:none;
+                position:absolute;
+                top:350px;
+                left:170px;
+                z-index:299;
+                width:250px;
+                height:90px;
+                background-color: #f9f9f9;
+                border-style:solid;
+                border-width:3px;
+                border-color: #5394ed;
+                padding:10px;
+                text-align: center;
+            }
+        </style>
+        <script>
+            var changeChosenNodeSize = function (values, id, selected, hovering) {
+                values.size = 40;
+            }
+            var changeChosenLegendNodeSize = function (values, id, selected, hovering) {
+                values.size = 23;
+            }
+            var changeChosenEdgeMiddleArrowScale = function (values, id, selected,
+                    hovering) {
+                values.middleArrowScale = 1.1;
+            }
+            var network = null;
+            var connections = [];
+            var nodeId = 0;
+            var edgeId = 0;
+            var nodes = new vis.DataSet();
+            // create an array with edges
+            var edges = new vis.DataSet();
+            var headInfo = [];
+            function bindChartWorkflow(jsonData) {
+                var colors = {
+                    "red": "c",
+                    "blue": "d",
+                    "gray": "t",
+                    "green": "s",
+                    "orange": "c"
+                };
+                var ColorSelection = function (value) {
+                    switch (value) {
+                        case colors.red:
+                            return "red";
+                            break;
+                        case colors.blue:
+                            return "blue";
+                            break;
+                        case colors.gray:
+                            return "gray";
+                            break;
+                        case colors.green:
+                            return "green";
+                            break;
+                        case colors.orange:
+                            return "orange";
+                            break;
+                    }
+                }
+                var hasPath = function (var1, var2) {
+                    var flag = false;
+                    $.each(jsonData, function (key, value) {
+                        if (key == "edges") {
+                            $.each(value, function (item, val) {
+                                if (var1 == val[0]) {
+                                    if (var2 == val[1]) {
+                                        flag = true;
+                                    }
+                                    if (hasPath(val[1], var2) == true) {
+                                        flag = true;
+                                    }
+                                }
+                            })
+                        }
+                    })
+                    return flag;
+                }
+                var container = document.getElementById('mynetwork');
+                var options = {
+                    edges: {
+                        color: 'black',
+                        arrows: {
+                            middle: true
+                                    // 					{
+                                    // 						scaleFactor : 0.6
+                                    // 					}
+                        },
+                        chosen: {
+                            label: false,
+                            edge: changeChosenEdgeMiddleArrowScale
+                        }
+                    },
+                    nodes: {
+                        shape: 'dot'
+                    },
+                    physics: {
+                        minVelocity: 0.75
+                    },
+                    interaction: {
+                        hover: true
+                    },
+                    groups: {
+                        useDefaultGroups: true
+                    },
+                    manipulation: {
+                        addNode: function (data, callback) {
+                            // filling in the popup DOM elements
+                            document.getElementById('node-operation').innerHTML = "Add Node";
+                            editNode(data, callback);
+                        },
+                        editNode: function (data, callback) {
+                            // filling in the popup DOM elements
+                            document.getElementById('node-operation').innerHTML = "Edit Node";
+                            editNode(data, callback);
+                        },
+                        addEdge: function (data, callback) {
+                            if (data.from == data.to) {
+                                var r = confirm("Do you want to connect the node to itself?");
+                                if (r != true) {
+                                    callback(null);
+                                    return;
+                                }
+                            }
+                            document.getElementById('edge-operation').innerHTML = "Add Edge";
+                            editEdgeWithoutDrag(data, callback);
+                        },
+                        editEdge: {
+                            editWithoutDrag: function (data, callback) {
+                                document.getElementById('edge-operation').innerHTML = "Edit Edge";
+                                editEdgeWithoutDrag(data, callback);
+                            }
+                        }
+                    }
+                };
+
+                $.each(jsonData.desc, function (key, value) {
+                    if (key == "charts") {
+                        //NODES
+                        $.each(value, function (index, val) {
+                            nodeId = nodeId + 1;
+                            nodes.add([{
+                                    id: nodeId,
+                                    label: val,
+                                    //shape : 'box',
+                                    size: 35,
+                                    color: ColorSelection("c"),
+                                    title: val,
+                                    group: 'charts',
+                                    chosen: {
+                                        label: false,
+                                        node: changeChosenNodeSize
+                                    },
+                                    font: {
+                                        multi: 'html',
+                                        size: 25,
+                                        bold: {
+                                            color: '#0077aa'
+                                        }
+                                    },
+                                }]);
+                        });
+                    } else if (key == "datasets") {
+                        $.each(value, function (index, val) {
+                            nodeId = nodeId + 1;
+                            nodes.add([{
+                                    id: nodeId,
+                                    label: val,
+                                    //shape : 'box',
+                                    size: 35,
+                                    color: ColorSelection("d"),
+                                    title: val,
+                                    group: 'datasets',
+                                    chosen: {
+                                        label: false,
+                                        node: changeChosenNodeSize
+                                    },
+                                    font: {
+                                        multi: 'html',
+                                        size: 25,
+                                        bold: {
+                                            color: '#0077aa'
+                                        }
+                                    },
+                                }]);
+                        });
+                    } else if (key == "scripts") {
+                        $.each(value, function (index, val) {
+                            nodeId = nodeId + 1;
+                            nodes.add([{
+                                    id: nodeId,
+                                    label: val,
+                                    //shape : 'box',
+                                    size: 35,
+                                    color: ColorSelection("s"),
+                                    title: val,
+                                    group: 'scripts',
+                                    chosen: {
+                                        label: false,
+                                        node: changeChosenNodeSize
+                                    },
+                                    font: {
+                                        multi: 'html',
+                                        size: 25,
+                                        bold: {
+                                            color: '#0077aa'
+                                        }
+                                    },
+                                }]);
+                        });
+                    }
+                    else if (key == "tools") {
+                        $.each(value, function (index, val) {
+                            nodeId = nodeId + 1;
+                            nodes.add([{
+                                    id: nodeId,
+                                    label: val,
+                                    //shape : 'box',
+                                    size: 35,
+                                    color: ColorSelection("t"),
+                                    title: val,
+                                    group: 'tools',
+                                    chosen: {
+                                        label: false,
+                                        node: changeChosenNodeSize
+                                    },
+                                    font: {
+                                        multi: 'html',
+                                        size: 25,
+                                        bold: {
+                                            color: '#0077aa'
+                                        }
+                                    },
+                                }]);
+                        });
+                    }
+                });
+                var data = {
+                    nodes: nodes,
+                    edges: edges
+                };
+
+                function editNode(data, callback) {
+                    document.getElementById('node-label').value = data.label;
+                    document.getElementById('node-saveButton').onclick = saveNodeData.bind(this, data, callback);
+                    document.getElementById('node-cancelButton').onclick = clearNodePopUp.bind();
+                    document.getElementById('node-popUp').style.display = 'block';
+                }
+
+                function clearNodePopUp() {
+                    document.getElementById('node-saveButton').onclick = null;
+                    document.getElementById('node-cancelButton').onclick = null;
+                    document.getElementById('node-popUp').style.display = 'none';
+                }
+
+                function cancelNodeEdit(callback) {
+                    clearNodePopUp();
+                    callback(null);
+                }
+
+                function saveNodeData(data, callback) {
+                    data.label = document.getElementById('node-label').value;
+                    var head = document.getElementById('node-label').value + "*" + document.getElementById('node-readme').value + "*" + document.getElementById('node-url').value
+                    headInfo.push(head);
+                    nodeId = nodeId + 1;
+                    data.id = nodeId;
+                    clearNodePopUp();
+                    callback(data);
+                }
+
+                function editEdgeWithoutDrag(data, callback) {
+                    // filling in the popup DOM elements
+//                    document.getElementById('edge-label').value = data.label;
+                    document.getElementById('edge-saveButton').onclick = saveEdgeData.bind(this, data, callback);
+                    document.getElementById('edge-cancelButton').onclick = cancelEdgeEdit.bind(this, callback);
+                    document.getElementById('edge-popUp').style.display = 'block';
+                }
+
+                function clearEdgePopUp() {
+                    document.getElementById('edge-saveButton').onclick = null;
+                    document.getElementById('edge-cancelButton').onclick = null;
+                    document.getElementById('edge-popUp').style.display = 'none';
+                }
+
+                function cancelEdgeEdit(callback) {
+                    clearEdgePopUp();
+                    callback(null);
+                }
+
+                function saveEdgeData(data, callback) {
+                    if (typeof data.to === 'object')
+                        data.to = data.to.id
+                    if (typeof data.from === 'object')
+                        data.from = data.from.id
+                    edgeId = edgeId + 1;
+                    data.label = edgeId;
+                    data.id = edgeId;
+                    clearEdgePopUp();
+                    callback(data);
+                }
+
+
+
+
+                network = new vis.Network(container, data, options);
+
+
+                // create an array with nodes
+                //var nodes = new vis.DataSet();
+                // create an array with edges
+                //var edges = new vis.DataSet();
+                // legend
+//                var mynetwork = document.getElementById('divLegends');
+//                var x = -mynetwork.clientWidth / 2 + 50;
+//                var y = -mynetwork.clientHeight / 1.5 + 60;
+//                var step = 70;
+//                nodes.add({
+//                    id: 1000,
+//                    x: x,
+//                    y: -170,
+//                    label: 'Legends',
+//                    group: 'Legends',
+//                    shape: 'box',
+//                    font: {
+//                        multi: 'html',
+//                        size: 16
+//                    },
+//                    size: 20,
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false
+//                    }
+//                });
+//                nodes.add({
+//                    id: 1001,
+//                    x: x,
+//                    y: y + step,
+//                    label: 'Head',
+//                    group: 'Head',
+//                    title: 'Head',
+//                    size: 20,
+//                    color: 'red',
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false,
+//                        node: changeChosenLegendNodeSize
+//                    }
+//                });
+//                nodes.add({
+//                    id: 1002,
+//                    x: x,
+//                    y: y + 2 * step,
+//                    label: 'Tool',
+//                    group: 'Tool',
+//                    title: 'Tool',
+//                    size: 20,
+//                    color: 'blue',
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false,
+//                        node: changeChosenLegendNodeSize
+//                    }
+//                });
+//                nodes.add({
+//                    id: 1003,
+//                    x: x,
+//                    y: y + 3 * step,
+//                    label: 'Dataset',
+//                    group: 'Dataset',
+//                    title: 'Dataset',
+//                    color: 'gray',
+//                    size: 20,
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false,
+//                        node: changeChosenLegendNodeSize
+//                    }
+//                });
+//                nodes.add({
+//                    id: 1004,
+//                    x: x,
+//                    y: y + 4 * step,
+//                    label: 'Script',
+//                    group: 'Script',
+//                    title: 'Script',
+//                    color: 'green',
+//                    size: 20,
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false,
+//                        node: changeChosenLegendNodeSize
+//                    }
+//                });
+//                nodes.add({
+//                    id: 1005,
+//                    x: x,
+//                    y: y + 5 * step,
+//                    label: 'Chart',
+//                    group: 'Chart',
+//                    title: 'Chart',
+//                    color: 'orange',
+//                    size: 20,
+//                    fixed: true,
+//                    physics: false,
+//                    chosen: {
+//                        label: false,
+//                        node: changeChosenLegendNodeSize
+//                    }
+//                });
+//                var data = {
+//                    nodes: nodes,
+//                    edges: edges
+//                };
+//                options.interaction.zoomView = false;
+//                var network = new vis.Network(mynetwork, data, options);
+
+            }
+
+
+            function callWorkflow(type,listconn) {
+                var plist = [];
+                var pid = $("#pid").val();
+                plist.push(pid);
+                plist.push(type);
+                if(listconn.length>0){
+                    plist.push(listconn);
+                    plist.push(headInfo);
+                }
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/getWorkflow',
+                    dataType: "json",
+                    contentType: "application/json ; charset=utf-8",
+                    data: JSON.stringify(plist),
+                    success: function (data) {
+//                        console.log(data.pList[0].desc.lastName);
+                        console.log(data);
+                        if (type == "POST") {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#workflowid").addClass("is-complete");
+                            $("#downloadid").addClass("is-active");
+                             $("#downloadid").removeClass("disabled");
+                        } else {
+                            $("#navbar>li.is-active").removeClass("is-active");
+                            $("#curateid").addClass("is-complete");
+                            $("#workflowid").addClass("is-active");
+                            bindChartWorkflow(data.workflow);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var diverror = $('#errors');
+                        diverror.append("<div class='form-style-2 centrist'> <font color='red'>" + jqXHR + " " + textStatus + " " + errorThrown + "</font></div>")
+                    }
+                });
+            }
+
+
+            function connectedNodes() {
+                alert(edgeId);
+                for (var i = 1; i <= edgeId; i++) {
+                    var saves = [];
+                    saves.push(nodes.get(edges.get(i).from).label);
+                    saves.push(nodes.get(edges.get(i).to).label);
+                    if (saves.length > 0)
+                        connections.push(saves);
+                }
+              alert(connections);
+              callWorkflow("POST",connections);
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            $(function () {
+                callWorkflow("GET",connections);
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </script>
+
+
+
+
+    </head>
+    <body>
+        <div>
+            <form> 
+                <div id="node-popUp">
+                    <span id="node-operation">node</span> <br>
+                    <table style="margin:auto;">
+                        <tr>
+                            <td>Head Label</td><td><input id="node-label" value="new value" /></td>
+                        </tr>
+                        <tr>
+                            <td>ReadMe</td><td><input id="node-readme" value="new value" /></td>
+                        </tr>
+                        <tr>
+                            <td>Url</td><td><input id="node-url" value="new value" /></td>
+                        </tr>
+                    </table>
+                    <input type="button" value="save" id="node-saveButton" />
+                    <input type="button" value="cancel" id="node-cancelButton" />
+                </div>
+                <div id="edge-popUp">
+                    <span id="edge-operation">edge</span> <br>
+                    <input type="button" value="save" id="edge-saveButton" />
+                    <input type="button" value="cancel" id="edge-cancelButton" />
+                </div>
+                <div id="mynetwork">
+                </div>
+
+
+                <label>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" style="width: 100%; display: block;" value="Back" onclick="$('#content').load('./pages/curate.html');"/>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" style="width: 100%; display: block;" value="Continue" onclick="$('#content').load('./pages/download.html');"/>
+                    <input type="button" class="btn btn-lg btn-primary btn-block" style="width: 100%; display: block;" value="Save" onclick="connectedNodes();"/>
+
+                </label>
+            </form>
+        </div>
+    </body>
+</html>

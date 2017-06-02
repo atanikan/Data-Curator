@@ -161,7 +161,7 @@
       "isPublic":true,
       "notebookFile":"Main.ipynb",
       "serverPath":"http://midway001.rcc.uchicago.edu:8888/dataportal/",
-      "timeStamp":"2017-05-24 00:46:26"
+      "timeStamp":"2017-05-25 10:03:32"
    },
    "reference":{
       "DOI":"14400.1021/jacs.6b00225",
@@ -301,7 +301,7 @@
          ],
          "facilityName":"Helmholtz-Zentrum Berlin",
          "id":"t0",
-         "kind":"experiment",
+         "kind":"Experiment",
          "measurement":"soft X-ray Photoemission"
       },
       {
@@ -309,7 +309,7 @@
             "http://www.quantum-espresso.org/"
          ],
          "id":"t1",
-         "kind":"software",
+         "kind":"Software",
          "packageName":"Quantum-Espresso",
          "programName":"pw.x",
          "version":"5.2"
@@ -319,7 +319,7 @@
             "http://www.west-code.org"
          ],
          "id":"t2",
-         "kind":"software",
+         "kind":"Software",
          "packageName":"West",
          "programName":"wstat.x",
          "version":"2.0.0"
@@ -328,32 +328,88 @@
    "workflow":{
       "edges":[
          [
-            "t2",
-            "s5"
-         ],
-         [
-            "s6",
-            "s10"
-         ],
-         [
-            "h1",
-            "s1"
-         ],
-         [
-            "s8",
-            "c1"
-         ],
-         [
             "s3",
             "s4"
+         ],
+         [
+            "h0",
+            "t0"
+         ],
+         [
+            "s0",
+            "c0"
+         ],
+         [
+            "s10",
+            "c3"
+         ],
+         [
+            "s1",
+            "s2"
+         ],
+         [
+            "t1",
+            "d3"
+         ],
+         [
+            "t1",
+            "d2"
+         ],
+         [
+            "s5",
+            "s4"
+         ],
+         [
+            "s7",
+            "c4"
          ],
          [
             "t0",
             "d0"
          ],
          [
+            "d3",
+            "s3"
+         ],
+         [
+            "d3",
+            "t2"
+         ],
+         [
+            "s9",
+            "c2"
+         ],
+         [
+            "t2",
+            "s5"
+         ],
+         [
+            "s8",
+            "c1"
+         ],
+         [
+            "h1",
+            "s1"
+         ],
+         [
+            "d1",
+            "t1"
+         ],
+         [
+            "s6",
+            "s10"
+         ],
+         [
+            "s2",
+            "d1"
+         ],
+         [
             "s4",
             "s6"
+         ],
+         [
+            "s4",
+            "s9"
          ],
          [
             "s4",
@@ -364,60 +420,12 @@
             "s8"
          ],
          [
-            "s4",
-            "s9"
-         ],
-         [
-            "t1",
-            "d2"
-         ],
-         [
-            "t1",
-            "d3"
-         ],
-         [
-            "h2",
-            "s1"
-         ],
-         [
-            "s5",
-            "s4"
-         ],
-         [
-            "s10",
-            "c3"
-         ],
-         [
-            "s2",
-            "d1"
-         ],
-         [
-            "d1",
-            "t1"
-         ],
-         [
-            "d2",
-            "s3"
-         ],
-         [
-            "d2",
-            "t2"
-         ],
-         [
-            "s7",
-            "c4"
-         ],
-         [
-            "s9",
-            "c2"
-         ],
-         [
             "d0",
             "s10"
          ],
          [
             "d0",
-            "s0"
+            "s9"
          ],
          [
             "d0",
@@ -425,56 +433,48 @@
          ],
          [
             "d0",
-            "s9"
+            "s0"
          ],
          [
-            "h0",
-            "t0"
+            "h2",
+            "s1"
          ],
          [
-            "d3",
+            "d2",
             "s3"
          ],
          [
-            "d3",
+            "d2",
             "t2"
-         ],
-         [
-            "s1",
-            "s2"
-         ],
-         [
-            "s0",
-            "c0"
          ]
       ],
       "nodes":[
-         "t2",
-         "s6",
-         "c4",
-         "c3",
-         "h1",
-         "s8",
          "s3",
-         "t0",
-         "s4",
-         "t1",
-         "h2",
-         "s5",
-         "s10",
-         "s2",
-         "d1",
+         "c1",
          "c0",
-         "c2",
-         "d2",
-         "s7",
-         "s9",
-         "d0",
          "h0",
-         "d3",
-         "s1",
          "s0",
-         "c1"
+         "c4",
+         "s10",
+         "s1",
+         "t1",
+         "s5",
+         "s7",
+         "t0",
+         "d3",
+         "s9",
+         "t2",
+         "s8",
+         "h1",
+         "d1",
+         "s6",
+         "s2",
+         "s4",
+         "c3",
+         "c2",
+         "d0",
+         "h2",
+         "d2"
       ]
    }
 }

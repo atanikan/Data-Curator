@@ -11,9 +11,6 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <script>
-            $(document).ready(function () {
-                savePersonalDetails("GET");
-            });
             function savePersonalDetails(type) {
                 var fname = $("#fname").val();
                 var mname = $("#mname").val();
@@ -46,7 +43,9 @@ and open the template in the editor.
                         if (type == "POST") {
                             $("#navbar>li.is-active").removeClass("is-active");
                             $("#serverid").addClass("is-active");
+                            $("#serverid").removeClass("disabled");
                             $("#detailsid").addClass("is-complete");
+                            $('#pid').val(data.pid);
                             $("#content").load("./pages/server.html");
                         } else {
                             $("#fname").val(data.pdetails.desc.firstName);
@@ -60,7 +59,9 @@ and open the template in the editor.
             }
 
             (function () {
-                $('.mandate').keyup(function () {
+               $('#loading').css("display", "none");
+               $('#datacontent').css("display", "block");
+                $('.mandate').bind("keyup blur", function () {
 
                     var empty = false;
                     $('.mandate').each(function () {
